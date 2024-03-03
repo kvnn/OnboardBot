@@ -7,15 +7,15 @@ More interesting, we can use LLMs to provide a continuous interface for managing
 
 ### Install
 1. `git clone git@github.com:kvnn/OnboardBot.git`
-1. `cd OnboardBoat/src/server`
-1. `pip install -r requirements.txt` (TODO: clean this up .. sorry about that ... useful stuff in there tho)
-1. Create an `.env` file in the server directory:
+2. `cd OnboardBoat/src/server`
+3. `pip install -r requirements.txt` (TODO: clean this up .. sorry about that ... useful stuff in there tho)
+4. Create an `.env` file in the server directory:
 ```bash
 CHAINLIT_AUTH_SECRET="secret"
 OPENROUTER_API_KEY="YOUR_OPENROUTER_KEY"
 OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
 ```
-1. `chainlit run app.py`
+5. `chainlit run app.py`
 
 
 ### Server
