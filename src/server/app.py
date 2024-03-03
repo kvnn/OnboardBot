@@ -7,17 +7,11 @@ from pydantic import ValidationError
 
 
 from prompts import get_onboarding_prompt, finished_message
-from models import User, Company
+from models import enabled_models
 
 from llm import (
     ask_llm_simple_json,
 )
-
-
-datamodels = [
-    User,
-    Company
-]
 
 @app.get("/health-check", status_code=200)
 def health_check():
@@ -71,8 +65,8 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
     try:
         finished_data = current_model(**current_data)
         print(f'{current_model.__name__} is finished with {finished_data}')
-        if datamodels.index(current_model) < len(datamodels) - 1:
-            current_model = datamodels[datamodels.index(current_model) + 1]
+        if enabled_models.index(current_model) < len(enabled_models) - 1:
+            current_model = enabled_models[enabled_models.index(current_model) + 1]
             current_data = {}
             cl.user_session.set('current_model', current_model)
             cl.user_session.set('current_data', current_data)
@@ -92,7 +86,7 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
 
 @cl.on_message
 async def main(message: cl.Message):
-    current_model = cl.user_session.get("current_model", datamodels[0])
+    current_model = cl.user_session.get("current_model", enabled_models[0])
     current_data = cl.user_session.get("current_data", {})
     model_meta = current_model.__doc__ if current_model.__doc__ else ""
 

@@ -1,38 +1,32 @@
 from pydantic import BaseModel, Field, validator
 from typing import Annotated, List, Optional
 
-
-# class Foo(BaseModel):
-#     count: int
-#     size: Optional[float] = None
-
-#     @validator('size')
-#     def prevent_none(cls, v):
-#         assert v is not None, 'size may not be None'
-#         return v
-
+# TODO: Inject these doctstrings into the prompt loop if `LLM:`
+# TODO: Implement Goal
 
 class User(BaseModel):
     '''
+    LLM: a person (or avatar) using the chat interface
     '''
-    name: str
-    age: int
-    # Note: gpt-3.5-turbo gets extremely confused with "occupation" here.
-    job_title: str
+    user_name: str # the person using the form
+    user_age: float
 
-class Company(BaseModel):
-    name: str
-    timezone: str
-    room_count: int
+class UserData(User):
+    '''
+    LLM: data about the person using the chat interface
+    '''
+    favorite_color: str
+    favorite_marine_mammal: str
 
-    trip_advisor_id: str
-    welcome_message: str
-    away_message: str
+class Goal(BaseModel):
+    '''
+    LLM: something that the person wants to accomplish via chat.
+    '''
+    goal_name: str
+    goal_description: str
 
-class CompanyLocation(BaseModel):
-    country: str
-    city: str
-    state: str
-    zip_code: str
-    address_line: str
-    hotel_phone: str
+enabled_models = [
+    User,
+    UserData,
+    Goal
+]
