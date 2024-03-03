@@ -1,6 +1,5 @@
 ## OnboardBot
 
-*** Why OnboardBot
 Forms suck. LLMs are good at conversational-izing data operations. So, we can use LLMs like Mixtral or GPT-4 to get our users (and ourselves, even) into an "onboarded" state.
 
 More interesting, we can use LLMs to provide a continuous interface for managing our relational data. Examples coming soon.
