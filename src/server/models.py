@@ -26,7 +26,6 @@ class Goal(BaseModel):
     goal_description: str
 
 enabled_models = [
-    User,
     UserData,
     Goal
 ]
