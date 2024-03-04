@@ -2,9 +2,13 @@
 
 Demo: [Onboard.bot](https://onboard.bot)
 
+https://github.com/kvnn/OnboardBot/assets/251807/be165084-9a80-4a00-8855-23690a3d662a
+
 Forms suck. LLMs are good at conversational-izing data operations. So, we can use LLMs like Mixtral or GPT-4 to get our users (and ourselves, even) into an "onboarded" state.
 
 More interesting, we can use LLMs to provide a continuous interface for managing our relational data. Examples coming soon.
+
+For now OnboardBot is a simple starter project for a [Chainlit](https://github.com/Chainlit/chainlit)-based data-collecting Chatbot.
 
 
 ### Install
@@ -18,11 +22,6 @@ OPENAI_API_KEY="YOUR SECRET KEY"
 OPENROUTER_API_KEY="YOUR OPENROUTER_API_KEY"
 ```
 5. `chainlit run app.py`
-
-### Optional
-1. Postgres database for permanent data storage. Create your database and add this to the .env file: `DATA_DB_CONNECTION="postgresql+asyncpg://{YOUR DB USER}:{YOUR DB PASSWORD}@{YOUR DB URL}:5432/{YOUR DB NAME}}"` .
-
-TODO: If you add this, responses will be saved to the db. The data models in `models.py` will be stored as `jsonb` columns. The database schema can be found in `db_schema.sql` . For now you'll need to create the db schema yourself (copy / paste into something like PGAdmin in your database's public schema) Remember: if you don't have database experience, just ask a good bot for help.
 
 
 ### Server
