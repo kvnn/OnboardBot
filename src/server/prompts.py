@@ -1,7 +1,35 @@
+import pprint
 import random
 
+from models import enabled_models
+
+
+model_schema = []
+
+for model in enabled_models:
+    schema = {}
+    schema[model.__name__] = model.schema_json()
+    model_schema.append(schema)
+
+models_str = pprint.pformat(model_schema)
+
+print(f'models_str={models_str}')
+
+welcome_message = f'''Welcome to OnboardBot. This is the welcome message.
+
+Today we will be onboarding you onto the default data model.
+
+Here is what we'll be collecting from you:
+
+```json
+{models_str}
+```
+
+Lets begin!
+'''
 
 finished_message = 'We are finished! Thanks for your help! A team member will reach out to you soon.'
+fallback_followup_response = "Oh no! I'm not sure what to ask. Maybe you know what I need? Or is there something you need?"
 
 def get_onboarding_prompt(message_history, model_meta, model_schema, current_data):
     prompt = '''

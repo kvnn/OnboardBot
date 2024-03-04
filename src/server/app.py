@@ -6,7 +6,12 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 
-from prompts import get_onboarding_prompt, finished_message
+from prompts import (
+    get_onboarding_prompt,
+    finished_message,
+    fallback_followup_response,
+    welcome_message
+)
 from models import enabled_models
 
 from llm import (
@@ -37,8 +42,14 @@ async def start_chat():
         url="/public/img/onboardbot-avatar.png",
     ).send()
     
-    msg = cl.Message(author="OnboardBot", content="Welcome to OnboardBot")
+    msg = cl.Message(author="OnboardBot", content=welcome_message)
+
     await msg.send()
+    
+    current_model = cl.user_session.get("current_model", enabled_models[0])
+    model_meta = current_model.__doc__ if current_model.__doc__ else ""
+    current_data = {}
+    await onboarding_flow([], current_model, current_data, model_meta)
 
 
 async def onboarding_flow(message_history, current_model, current_data, model_meta):
@@ -60,7 +71,7 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
     })
 
     current_data = content['current_data']
-    followup_response = content.get('followup_response', "Oh no! I'm not sure what to ask. Maybe you know what I need?")
+    followup_response = content.get('followup_response', fallback_followup_response)
 
     try:
         finished_data = current_model(**current_data)

@@ -11,11 +11,16 @@ More interesting, we can use LLMs to provide a continuous interface for managing
 3. `pip install -r requirements.txt` (TODO: clean this up .. sorry about that ... useful stuff in there tho)
 4. Create an `.env` file in the server directory:
 ```bash
-CHAINLIT_AUTH_SECRET="secret"
-OPENROUTER_API_KEY="YOUR_OPENROUTER_KEY"
-OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+CHAINLIT_AUTH_SECRET="YOUR SECRET KEY"
+OPENAI_API_KEY="YOUR SECRET KEY"
+OPENROUTER_API_KEY="YOUR OPENROUTER_API_KEY"
 ```
 5. `chainlit run app.py`
+
+### Optional
+1. Postgres database for permanent data storage. Create your database and add this to the .env file: `DATA_DB_CONNECTION="postgresql+asyncpg://{YOUR DB USER}:{YOUR DB PASSWORD}@{YOUR DB URL}:5432/{YOUR DB NAME}}"` .
+
+If you add this, responses will be saved to the db. The data models in `models.py` will be stored as `jsonb` columns. The database schema can be found in `db_schema.sql` . For now you'll need to create the db schema yourself (copy / paste into something like PGAdmin in your database's public schema) Remember: if you don't have database experience, just ask a good bot for help.
 
 
 ### Server
@@ -66,11 +71,13 @@ Everything OnboardBot wishes to achieve is done via chat.
 
 ## Support
 
-email aloha@oahu.ai
+create an issue
 
 
 ### TODO
 
+- Support "conditional waterfall" system ?
+  - 
 - Support OpenAI (you'll need to modify `llm.py` to do this for now. Just remove the `base_url` property from `llm_chat_client_async` and change the default models to an OpenAI model. 
 - Support duplicate key names in data classes (the LLM needs to understand they are unique, even with same key)
 - Decide: should `User` and `Goal` may need to be first-class models, and should prompt be different for definitions of data models versus class that inherit from them? there is a tricky truth here that we are defining pydantic models for LLM's understanding, when we are conditioned to write data models to make our code more meaningful. So, we may need utility classes (or first-class classes?) that support enabled_models that are intended for the LLMs understanding.
