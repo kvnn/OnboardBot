@@ -4,15 +4,16 @@ import random
 from models import enabled_models
 
 
-model_schema = []
+models_str = ''
 
 for model in enabled_models:
-    schema = {}
-    schema[model.__name__] = model.schema_json()
-    model_schema.append(schema)
-
-models_str = pprint.pformat(model_schema)
-
+    # import pdb; pdb.set_trace()
+    schema = model.schema()
+    keys = [item for item in schema['properties'].keys()]
+    models_str += f'{model.__name__}:\n'
+    for key in keys:
+        models_str += f'    - {key}\n'
+models_str += '\n\n\n'
 print(f'models_str={models_str}')
 
 welcome_message = f'''Welcome to OnboardBot. This is the welcome message.
