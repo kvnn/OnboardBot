@@ -35,31 +35,33 @@ You'll be modifying this file heavily.
 Here is an example:
 
 ```python
-    from pydantic import BaseModel, Field, validator
-    from typing import Annotated, List, Optional
+class User(BaseModel):
+    '''
+    LLM: a person (or avatar) using the chat interface
+    '''
+    user_name: str # the person using the form
+    user_age: float
 
-    # TODO: Inject these doctstrings into the prompt loop if `LLM:`
-    # TODO: Implement Goal
+class Favorites(BaseModel):
+    '''
+    LLM: data about the person using the chat interface
+    '''
+    favorite_color: str
+    favorite_marine_mammal: str
 
-    class User(BaseModel):
-        '''
-        LLM: a person (or avatar) using the chat interface
-        '''
-        user_name: str # the person using the form
-        user_age: float
+class Preferences(BaseModel):
+    '''
+    LLM: something that the person wants to accomplish via chat.
+    '''
+    soccer_or_volleyball: str
+    dogs_or_kangaroos: str
+    red_or_blue: str
 
-    class UserData(User):
-        # you will be changing this for the user data YOU want to collect
-        favorite_color: str
-        favorite_marine_mammal: str
-
-    class Goal(BaseModel):
-        '''
-        LLM: something that the person wants to accomplish via chat.
-        Sometimes we
-        '''
-        goal_name: str
-        goal_description: str
+enabled_models = [
+    User,
+    Favorites,
+    Preferences
+]
 ```
 
 OnboardBot (via `prompts.py`) will use the data models above to collect data from the user in a conversational, helpful manner. Note that to enable a Model, it must be imported into `app.py` and added to `enabled_models`.
