@@ -4,6 +4,8 @@ Forms suck. LLMs are good at conversational-izing data operations. So, we can us
 
 More interesting, we can use LLMs to provide a continuous interface for managing our relational data. Examples coming soon.
 
+See demo at [Onboard.bot](https://onboard.bot)
+
 
 ### Install
 1. `git clone git@github.com:kvnn/OnboardBot.git`
@@ -20,7 +22,7 @@ OPENROUTER_API_KEY="YOUR OPENROUTER_API_KEY"
 ### Optional
 1. Postgres database for permanent data storage. Create your database and add this to the .env file: `DATA_DB_CONNECTION="postgresql+asyncpg://{YOUR DB USER}:{YOUR DB PASSWORD}@{YOUR DB URL}:5432/{YOUR DB NAME}}"` .
 
-If you add this, responses will be saved to the db. The data models in `models.py` will be stored as `jsonb` columns. The database schema can be found in `db_schema.sql` . For now you'll need to create the db schema yourself (copy / paste into something like PGAdmin in your database's public schema) Remember: if you don't have database experience, just ask a good bot for help.
+TODO: If you add this, responses will be saved to the db. The data models in `models.py` will be stored as `jsonb` columns. The database schema can be found in `db_schema.sql` . For now you'll need to create the db schema yourself (copy / paste into something like PGAdmin in your database's public schema) Remember: if you don't have database experience, just ask a good bot for help.
 
 
 ### Server
