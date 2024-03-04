@@ -72,7 +72,7 @@ Everything OnboardBot wishes to achieve is done via chat.
 
 ## Support
 
-create an issue
+create an issue or email [kriggen@gmail.com](mailto:kriggen@gmail.com)
 
 
 ### TODO
