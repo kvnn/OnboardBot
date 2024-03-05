@@ -52,10 +52,10 @@ enabled_models = [
 ]
 ```
 
+OnboardBot (via `prompts.py`) will use the data models above to collect data from the user in a conversational, helpful manner. Note that to enable a Model, it must be added to the `enabled_models` list in `models.py`.
+
 Notice that conditional logic, in the case of `notification_preference_sms_email_whatsapp_or_combination`, is handled in the field name itself. The LLMs (including 
 `Mixtral-8x7B-Instruct` which is 100x cheaper than gpt-4) handle this exactly how we'd wish. The aim is to push the simplicity as far as possible before implementing logic chains in the models.
-
-OnboardBot (via `prompts.py`) will use the data models above to collect data from the user in a conversational, helpful manner. Note that to enable a Model, it must be added to the `enabled_models` list in `models.py`.
 
 
 ### UI
