@@ -52,6 +52,8 @@ enabled_models = [
 ]
 ```
 
+Notice that conditional logic, in this case, is handled in the model fields themselves. The aim is to push the simplicity as far as possible before implementing logic chains in the models.
+
 OnboardBot (via `prompts.py`) will use the data models above to collect data from the user in a conversational, helpful manner. Note that to enable a Model, it must be added to the `enabled_models` list in `models.py`.
 
 
