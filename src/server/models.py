@@ -1,31 +1,43 @@
 from pydantic import BaseModel, Field, validator
 from typing import Annotated, List, Optional
 
-# TODO: Inject these doctstrings into the prompt loop if `LLM:`
-# TODO: Implement Goal
 
-class User(BaseModel):
+
+class OnboardModel(BaseModel):
+    # ALERT!!! field names must be unique across all child models.
+
+    # TODO: fix the above
+    # TODO: inject model doctstrings into the prompt loop, for the LLM's context
+    pass
+
+
+class User(OnboardModel):
     '''
-    LLM: a person (or avatar) using the chat interface
+    a person using the chat interface
     '''
     user_name: str # the person using the form
     user_age: float
 
-class Favorites(BaseModel):
+
+class Favorites(OnboardModel):
     '''
-    LLM: data about the person using the chat interface
+    some of the user's favorite things
     '''
-    favorite_color: str
+    favorite_musician: str
     favorite_marine_mammal: str
 
-class Preferences(BaseModel):
+
+class Preferences(OnboardModel):
     '''
-    LLM: something that the person wants to accomplish via chat.
+    personal preferences of the user
     '''
     soccer_or_volleyball: str
     dogs_or_kangaroos: str
     coffee_or_tea_or_other: str
 
+
+# ALERT!!
+# This is what dictates what the OnboardBot asks about, and in which order
 enabled_models = [
     User,
     Favorites,
