@@ -12,7 +12,6 @@ from utils import get_llm_response_as_json
 
 default_model = "mistralai/mixtral-8x7b-instruct" # Cheap but will not currently work with OnboardBot. TODO: add prompt logic to fix?
 
-
 settings = {
     "temperature": 0.5,
     # "max_tokens": 500,

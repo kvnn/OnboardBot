@@ -35,11 +35,23 @@ def health_check():
     return {'status':'ok'}
 
 
+# ALERT: this is just allowing the websocket to connect.
+# For production, you're on your own for now (regarding client security).
 @app.get("/custom-auth")
 async def custom_auth():
     # Verify the user's identity with custom logic.
     token = create_jwt(cl.User(identifier="Test User"))
     return JSONResponse({"token": token})
+
+
+@cl.action_callback("edit_models")
+async def edit_models(action: cl.Action):
+    print('edit_models action_callback')
+    content = f'Just kidding! But you will be able to soon.'
+    msg = cl.Message(content=content)
+    # Optionally remove the action button from the chatbot user interface
+    # await action.remove()
+    await msg.send()
 
 
 @cl.on_chat_start
@@ -49,12 +61,15 @@ async def start_chat():
         [
          ],
     )
+
     await cl.Avatar(
         name="OnboardBot",
         url="/public/img/onboardbot-avatar.png",
     ).send()
+
+    actions = []
     
-    msg = cl.Message(author="OnboardBot", content=welcome_message)
+    msg = cl.Message(author="OnboardBot", content=welcome_message, actions=actions)
 
     await msg.send()
     
@@ -64,7 +79,11 @@ async def start_chat():
     await onboarding_flow([], current_model, current_data, model_meta)
 
 
+is_first_user_message = True
+
 async def onboarding_flow(message_history, current_model, current_data, model_meta):
+    global is_first_user_message
+
     current_model_name = current_model.__name__
 
     prompt = get_onboarding_prompt(
@@ -86,6 +105,17 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
 
     current_data = content['current_data']
     followup_response = content.get('followup_response', fallback_followup_response)
+
+    print(f'first_user_message={is_first_user_message}')
+
+    if is_first_user_message:
+        is_first_user_message = False
+        content = "By the way, you can edit the models right here in the chat."
+        actions = [
+            cl.Action(label="Edit models", name="edit_models", value="edit_models", description="Do it!")
+        ]
+        msg = cl.Message(author="OnboardBot", content=content, actions=actions)
+        await msg.send()
 
     try:
         finished_data = current_model(**current_data)
