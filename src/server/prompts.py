@@ -4,7 +4,7 @@ import random
 from models import enabled_models
 
 
-models_str = ''
+models_str = '# TODO: make models.py editable in OnboardBot UI\n\n'
 
 for model in enabled_models:
     # import pdb; pdb.set_trace()
@@ -18,9 +18,7 @@ print(f'models_str={models_str}')
 
 welcome_message = f'''Welcome to OnboardBot. This is the welcome message.
 
-Today we will be onboarding you onto the default data model.
-
-Here is what we'll be collecting from you:
+Today we will be onboarding you onto the default data model, defined in `models.py`
 
 ```json
 {models_str}
