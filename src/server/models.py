@@ -24,7 +24,7 @@ class Preferences(BaseModel):
     '''
     soccer_or_volleyball: str
     dogs_or_kangaroos: str
-    red_or_blue: str
+    coffe_or_tea_or_other: str
 
 enabled_models = [
     User,

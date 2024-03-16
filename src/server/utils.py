@@ -43,6 +43,8 @@ def parse_json_within_markers(text, start_marker="```json", end_marker="```"):
         
         # Some LLM quirks
         json_content = json_content.replace('},}','}}')
+
+        json_content = json.replace('\\_', '_')
         return json.loads(json_content)
     except (ValueError, json.JSONDecodeError) as e:
         # ValueError for index not found, JSONDecodeError for invalid JSON

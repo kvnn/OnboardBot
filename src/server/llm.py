@@ -10,8 +10,7 @@ from logger import log_message_history_and_prompts
 from utils import get_llm_response_as_json
 
 
-tactic_model = "meta-llama/llama-2-13b-chat"
-default_model = "mistralai/mixtral-8x7b-instruct"
+default_model = "mistralai/mixtral-8x7b-instruct" # Cheap but will not currently work with OnboardBot. TODO: add prompt logic to fix?
 
 
 settings = {

@@ -59,9 +59,14 @@ def get_onboarding_prompt(message_history, model_meta, model_schema, current_dat
             "favorite_color": "Red"
         }
     }
-    
+    '''
+
+    # Mistral support
+    prompt += '''
     Always respond in the above shema and make sure to include the `current_data` key even if it is empty.
     Make sure the response can be loaded using `json.loads` in Python.
+
+    Responsd only with the `followup_response` and `current_data` keys. For example, do not include any other keys. Do not include `content=[json response]`.
 
     [/INST]
     '''

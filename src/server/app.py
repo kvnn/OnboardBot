@@ -3,6 +3,7 @@ from chainlit.auth import create_jwt
 from chainlit.server import app
 from fastapi import Request
 from fastapi.responses import JSONResponse
+import pprint
 from pydantic import ValidationError
 
 
@@ -17,6 +18,17 @@ from models import enabled_models
 from llm import (
     ask_llm_simple_json,
 )
+
+# open_router_model_name = 'gpt-3.5-turbo'    # not good for OnboardBot
+# open_router_model_name = 'mistralai/mistral-medium' # not good for Onboardbot?
+
+# very good for OnboardBot. strictest conformity to implicit field requirements.
+# for example, will make the user correct "octopus" if the field name is "favorite_marine_mammal", b/c octopus is not a mammal.
+open_router_model_name = 'gpt-4'
+
+# good for Onboardbot! great for playing with it. good for production IF strict imlplicit field adherance
+# is not required. For example, if "octopus" is a good enough answer for "favorite_marine_mammal".
+open_router_model_name = 'anthropic/claude-3-haiku'
 
 @app.get("/health-check", status_code=200)
 def health_check():
@@ -53,6 +65,8 @@ async def start_chat():
 
 
 async def onboarding_flow(message_history, current_model, current_data, model_meta):
+    current_model_name = current_model.__name__
+
     prompt = get_onboarding_prompt(
         message_history=message_history,
         model_schema=current_model.schema_json(),
@@ -62,7 +76,7 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
     
     content = await ask_llm_simple_json(
         query=prompt,
-        model='gpt-4'
+        model=open_router_model_name
     )
 
     message_history.append({
@@ -75,7 +89,11 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
 
     try:
         finished_data = current_model(**current_data)
-        print(f'{current_model.__name__} is finished with {finished_data}')
+        current_data_content = pprint.pformat(current_data)
+        current_data_content = f'```{current_model_name}``` = ```{current_data_content}```'
+        msg = cl.Message(author="OnboardBot", content=current_data_content)
+        await msg.send()
+
         if enabled_models.index(current_model) < len(enabled_models) - 1:
             current_model = enabled_models[enabled_models.index(current_model) + 1]
             current_data = {}
@@ -83,8 +101,10 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
             cl.user_session.set('current_data', current_data)
             await onboarding_flow(message_history, current_model, current_data, model_meta)
         else:
-            print('WE ARE FINISHED!!!')
-            msg = cl.Message(author="OnboardBot", content=finished_message)
+            finished_content = ''
+            for model in enabled_models:
+                finished_content += f'```{model.__name__}``` = ```{pprint.pformat(current_data)}```\n'
+            msg = cl.Message(author="OnboardBot", content=finished_content)
             await msg.send()
 
     except ValidationError as e:
