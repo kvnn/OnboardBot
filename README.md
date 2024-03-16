@@ -32,39 +32,30 @@ This will open a browser tab running the chatbot interface.
 
 The real meaning of OnboardBot is found in the default `models.py`.
 You'll be modifying this file heavily.
-Here is an example:
+
+Here is an example for beginning to onboard Landscaping candidates:
 
 ```python
-class User(BaseModel):
-    '''
-    LLM: a person (or avatar) using the chat interface
-    '''
-    user_name: str # the person using the form
-    user_age: float
+Employee:
+    - employee_name
+    - employee_age
+    - phone_number
+    - email_address
 
-class Favorites(BaseModel):
-    '''
-    LLM: data about the person using the chat interface
-    '''
-    favorite_color: str
-    favorite_marine_mammal: str
-
-class Preferences(BaseModel):
-    '''
-    LLM: something that the person wants to accomplish via chat.
-    '''
-    soccer_or_volleyball: str
-    dogs_or_kangaroos: str
-    red_or_blue: str
+Preferences:
+    - preferred_working_hours
+    - notification_preference_sms_email_whatsapp_or_combination
 
 enabled_models = [
-    User,
-    Favorites,
+    Employee,
     Preferences
 ]
 ```
 
-OnboardBot (via `prompts.py`) will use the data models above to collect data from the user in a conversational, helpful manner. Note that to enable a Model, it must be imported into `app.py` and added to `enabled_models`.
+OnboardBot (via `prompts.py`) will use the data models above to collect data from the user in a conversational, helpful manner. Note that to enable a Model, it must be added to the `enabled_models` list in `models.py`.
+
+Notice that conditional logic, in the case of `notification_preference_sms_email_whatsapp_or_combination`, is handled in the field name itself. The LLMs (including 
+`Mixtral-8x7B-Instruct` which is 100x cheaper than gpt-4) handle this exactly how we'd wish. The aim is to push the simplicity as far as possible before implementing logic chains in the models.
 
 
 ### UI
