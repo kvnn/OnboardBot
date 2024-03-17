@@ -1,3 +1,5 @@
+import json
+
 import chainlit as cl
 from chainlit.auth import create_jwt
 from chainlit.server import app
@@ -63,9 +65,14 @@ async def start_chat():
     current_data = {}
     await onboarding_flow([], current_model, current_data, model_meta)
 
+@cl.action_callback("save_models")
+async def save_models(action):
+    print(f'value={action.value} action={action}')
+    msg = cl.Message(author="OnboardBot", content='Coming soon!')
+    await msg.send()
 
 async def onboarding_flow(message_history, current_model, current_data, model_meta):
-    current_model_name = current_model.__name__
+    current_model_name = current_model.__tablename__
 
     prompt = get_onboarding_prompt(
         message_history=message_history,
@@ -88,28 +95,40 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
     followup_response = content.get('followup_response', fallback_followup_response)
 
     try:
-        finished_data = current_model(**current_data)
+        finished_model = current_model(**current_data)
+        finished_data = cl.user_session.get('finished_data')
+        finished_data.append(finished_model)
+        cl.user_session.set('finished_data', finished_data)
         current_data_content = pprint.pformat(current_data)
         current_data_content = f'```{current_model_name}``` = ```{current_data_content}```'
         msg = cl.Message(author="OnboardBot", content=current_data_content)
         await msg.send()
 
+        # Back to Onboarding Loop
         if enabled_models.index(current_model) < len(enabled_models) - 1:
             current_model = enabled_models[enabled_models.index(current_model) + 1]
             current_data = {}
             cl.user_session.set('current_model', current_model)
             cl.user_session.set('current_data', current_data)
             await onboarding_flow(message_history, current_model, current_data, model_meta)
+        # Finished Onboarding
         else:
-            finished_content = ''
-            for model in enabled_models:
-                finished_content += f'```{model.__name__}``` = ```{pprint.pformat(current_data)}```\n'
-            msg = cl.Message(author="OnboardBot", content=finished_content)
+            finished_json = {}
+            finished_content = 'We are finished! Here is your data:\n\n'
+            for model in finished_data:
+                finished_json[model.__tablename__] = model.model_dump()
+            finished_content += f'```\n\n{pprint.pformat(finished_json)}\n```'
+            finished_json = json.dumps(finished_json)
+
+            actions = [
+                cl.Action(label="Send to team", name="save_models", value=finished_json, description="Do it!")
+            ]
+            msg = cl.Message(author="OnboardBot", content=finished_content, actions=actions)
             await msg.send()
 
     except ValidationError as e:
         print(f'current_data ValidationError: {e}')
-        print(f'{current_model.__name__} not yet complete from current_data {current_data}')
+        print(f'{current_model.__tablename__} not yet complete from current_data {current_data}')
         cl.user_session.set('current_data', current_data)
         msg = cl.Message(author="OnboardBot", content=followup_response)
         await msg.send()
@@ -117,6 +136,8 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
 
 @cl.on_message
 async def main(message: cl.Message):
+    if not cl.user_session.get('finished_data'):
+        cl.user_session.set('finished_data', [])
     current_model = cl.user_session.get("current_model", enabled_models[0])
     current_data = cl.user_session.get("current_data", {})
     model_meta = current_model.__doc__ if current_model.__doc__ else ""

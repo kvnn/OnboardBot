@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field, validator
-from typing import Annotated, List, Optional
+from typing import Optional
+
+from sqlmodel import Field, SQLModel
 
 
 
-class OnboardModel(BaseModel):
+class OnboardModel(SQLModel):
     # ALERT!!! field names must be unique across all child models.
 
     # TODO: fix the above

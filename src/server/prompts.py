@@ -10,7 +10,7 @@ for model in enabled_models:
     # import pdb; pdb.set_trace()
     schema = model.schema()
     keys = [item for item in schema['properties'].keys()]
-    models_str += f'{model.__name__}:\n'
+    models_str += f'{model.__tablename__}:\n'
     for key in keys:
         models_str += f'    - {key}\n'
 models_str += '\n\n\n'
