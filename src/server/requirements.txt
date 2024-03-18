@@ -1,6 +1,6 @@
-openai==1.7.2
+asyncio==3.4.3
 chainlit==1.0.200
 fastapi==0.100.1
-pydantic==2.5.3
+openai==1.7.2
+sqlmodel==0.0.16
 typing_extensions==4.9.0
-asyncio==3.4.3

@@ -46,6 +46,7 @@ async def custom_auth():
 
 @cl.on_chat_start
 async def start_chat():
+    cl.user_session.set('finished_data', [])
     cl.user_session.set(
         "message_history",
         [
@@ -53,7 +54,7 @@ async def start_chat():
     )
     await cl.Avatar(
         name="OnboardBot",
-        url="/public/img/onboardbot-avatar.png",
+        url="/public/favicon.png",
     ).send()
     
     msg = cl.Message(author="OnboardBot", content=welcome_message)
@@ -117,7 +118,7 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
             finished_content = 'We are finished! Here is your data:\n\n'
             for model in finished_data:
                 finished_json[model.__tablename__] = model.model_dump()
-            finished_content += f'```\n\n{pprint.pformat(finished_json)}\n```'
+            finished_content += f'```\n\n{pprint.pformat(finished_json)}\n\n\n```'
             finished_json = json.dumps(finished_json)
 
             actions = [
@@ -136,8 +137,6 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
 
 @cl.on_message
 async def main(message: cl.Message):
-    if not cl.user_session.get('finished_data'):
-        cl.user_session.set('finished_data', [])
     current_model = cl.user_session.get("current_model", enabled_models[0])
     current_data = cl.user_session.get("current_data", {})
     model_meta = current_model.__doc__ if current_model.__doc__ else ""
