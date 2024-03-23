@@ -27,7 +27,9 @@ OPENROUTER_API_KEY="YOUR OPENROUTER_API_KEY"
 ### Modifications
 1. modify `models.py` for your use-case
 2. modify `prompt.py` as you wish
-3. you may need to `Ctrl+C` the local server and then re-run `chainlit run app.py`
+3. add branding assets to the `public` folder as you wish (some of which can be pointed to in the `config.yml`)
+4. modify `config.yml` as you wish (this is a Chainlit construct)
+5. you may need to `Ctrl+C` the local server and then re-run `chainlit run app.py`
 
 
 ### Server
