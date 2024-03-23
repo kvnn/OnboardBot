@@ -30,7 +30,7 @@ open_router_model_name = 'gpt-4'
 
 # good for Onboardbot! great for playing with it. good for production IF strict imlplicit field adherance
 # is not required. For example, if "octopus" is a good enough answer for "favorite_marine_mammal".
-open_router_model_name = 'anthropic/claude-3-haiku'
+# open_router_model_name = 'anthropic/claude-3-haiku'
 
 @app.get("/health-check", status_code=200)
 def health_check():
@@ -72,30 +72,66 @@ async def save_models(action):
     msg = cl.Message(author="OnboardBot", content='Coming soon!')
     await msg.send()
 
+async def choice_flow(message_history, current_model, current_data, model_meta):
+    actions = []
+    message = current_model.__doc__
+
+    for field_name, field_type in current_model.__annotations__.items():
+        actions.append(
+            cl.Action(
+                name=field_name,
+                value=field_name,
+                label=f"✅ {field_name}",
+            )
+        )
+    print(f'[choice_flow]: choices={current_model.__annotations__}')
+
+    # Note: this will await until the user selects a choice
+    res = await cl.AskActionMessage(
+        content=message,
+        actions=actions
+    ).send()
+
+    if res and res.get("value"):
+        choice = res.get("value")
+        for field_name in current_model.__annotations__.keys():
+            current_data[field_name] = False
+        current_data[choice] = True
+
+        current_data[res.get("value")] = True
+        cl.user_session.set('current_data', current_data)
+
+        await onboarding_flow(message_history, current_model, current_data, model_meta)
+
 async def onboarding_flow(message_history, current_model, current_data, model_meta):
+    followup_response = fallback_followup_response
     current_model_name = current_model.__tablename__
 
-    prompt = get_onboarding_prompt(
-        message_history=message_history,
-        model_schema=current_model.schema_json(),
-        model_meta=model_meta,
-        current_data=current_data
-    )
-    
-    content = await ask_llm_simple_json(
-        query=prompt,
-        model=open_router_model_name
-    )
+    # If current_model is an OnboardModel , we need to ask the LLM to fill it out based on message history
+    # If its a ChoiceModel, then the user has already made a choice
+    if current_model.__base__.__name__ == 'OnboardModel':
+        prompt = get_onboarding_prompt(
+            message_history=message_history,
+            model_schema=current_model.schema_json(),
+            model_meta=model_meta,
+            current_data=current_data
+        )
+        
+        content = await ask_llm_simple_json(
+            query=prompt,
+            model=open_router_model_name
+        )
 
-    message_history.append({
-        "role": "OnboardBot",
-        "content": content
-    })
+        message_history.append({
+            "role": "OnboardBot",
+            "content": content
+        })
 
-    current_data = content['current_data']
-    followup_response = content.get('followup_response', fallback_followup_response)
+        current_data = content['current_data']
+        followup_response = content.get('followup_response', followup_response)
 
-    try:
+    try:        
+        # If the current model can be created from the current data, then its portion of the onboarding is complete
         finished_model = current_model(**current_data)
         finished_data = cl.user_session.get('finished_data')
         finished_data.append(finished_model)
@@ -105,13 +141,20 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
         msg = cl.Message(author="OnboardBot", content=current_data_content)
         await msg.send()
 
-        # Back to Onboarding Loop
+        # Set up the next model and enter the Onboarding Loop
         if enabled_models.index(current_model) < len(enabled_models) - 1:
             current_model = enabled_models[enabled_models.index(current_model) + 1]
             current_data = {}
             cl.user_session.set('current_model', current_model)
             cl.user_session.set('current_data', current_data)
-            await onboarding_flow(message_history, current_model, current_data, model_meta)
+
+            if current_model.__base__.__name__ == 'ChoiceModel':
+                # if its a ChoiceModel, then we ask the user to make a choice
+                await choice_flow(message_history, current_model, current_data, model_meta)
+            else:
+                # if this is an OnboardModel, then we continue the onboarding loop            
+                # Note: this is a recursive call
+                await onboarding_flow(message_history, current_model, current_data, model_meta)
         # Finished Onboarding
         else:
             finished_json = {}

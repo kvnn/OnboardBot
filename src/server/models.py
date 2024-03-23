@@ -3,44 +3,79 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 
 
-
 class OnboardModel(SQLModel):
-    # ALERT!!! field names must be unique across all child models.
+    ''' You can use this to create a model for the user to fill out.'''
 
     # TODO: fix the above
     # TODO: inject model doctstrings into the prompt loop, for the LLM's context
     pass
 
 
-class User(OnboardModel):
-    '''
-    a person using the chat interface
-    '''
-    user_name: str # the person using the form
-    user_age: float
+class ChoiceModel(SQLModel):
+    ''' You can use this to create a list of choices for the user to select from.
+    
+    Simply subclass this model, add the message to send to the user as its docstring and add the choices as fields.
+    
+    NOTE: the field types MUST be bools'''
+    pass
 
 
-class Favorites(OnboardModel):
-    '''
-    some of the user's favorite things
-    '''
-    favorite_musician: str
-    favorite_marine_mammal: str
+
+class SoccerPlayer(OnboardModel):
+    player_email_address: str
+    player_name: str
 
 
-class Preferences(OnboardModel):
+class ContactInfo(OnboardModel):
     '''
-    personal preferences of the user
     '''
-    soccer_or_volleyball: str
-    dogs_or_kangaroos: str
-    coffee_or_tea_or_other: str
+    email_address: str
+    mailing_address: str
+    sms_phone_number: str
+
+
+class Measurements(OnboardModel):
+    shoe_size: str
+    height: str
+    weight: str
+
+
+class CleatSize(ChoiceModel):
+    ''' What is your cleat size?'''
+    size_6: bool
+    size_6_5: bool
+    size_7: bool
+    size_7_5: bool
+    size_8: bool
+    size_8_5: bool
+    size_9: bool
+    size_9_5: bool
+    size_10: bool
+    size_10_5: bool
+    size_11: bool
+    size_11_5: bool
+    size_12: bool
+    size_12_5: bool
+    other: bool
+    
+
+
+class FavoriteSoccerPosition(ChoiceModel):
+    ''' What is your favorite soccer position?'''
+    center_back: bool
+    fullback: bool 
+    midfielder: bool
+    attacking_midfielder: bool
+    forward: bool
+
 
 
 # ALERT!!
 # This is what dictates what the OnboardBot asks about, and in which order
 enabled_models = [
-    User,
-    Favorites,
-    Preferences
+    Account,
+    Property,
+    LiveChat,
+    PropertyType,
+    FavoriteSoccerPosition
 ]

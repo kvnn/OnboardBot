@@ -14,14 +14,20 @@ For now OnboardBot is a simple starter project for a [Chainlit](https://github.c
 ### Install
 1. `git clone git@github.com:kvnn/OnboardBot.git`
 2. `cd OnboardBoat/src/server`
-3. `pip install -r requirements.txt` (TODO: clean this up .. sorry about that ... useful stuff in there tho)
-4. Create an `.env` file in the server directory:
+3. (optional) `python3 -m venv .venv && source .venv/bin/activate`)
+4. `pip install -r requirements.txt` (TODO: clean this up .. sorry about that ... useful stuff in there tho)
+5. Create an `.env` file in the server directory:
 ```bash
 CHAINLIT_AUTH_SECRET="YOUR SECRET KEY"
-OPENAI_API_KEY="YOUR SECRET KEY"
 OPENROUTER_API_KEY="YOUR OPENROUTER_API_KEY"
 ```
-5. `chainlit run app.py`
+6. `chainlit run app.py`
+
+
+### Modifications
+1. modify `models.py` for your use-case
+2. modify `prompt.py` as you wish
+3. you may need to `Ctrl+C` the local server and then re-run `chainlit run app.py`
 
 
 ### Server

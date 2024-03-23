@@ -1,3 +1,2 @@
-Github: https://github.com/kvnn/OnboardBot
-
-Email: kriggen@gmail.com
+## Support
+Send a Slack message to `Kevin Riggen` , `@gx-engineering` , or email kevin.riggen@cloudbeds.com

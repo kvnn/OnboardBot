@@ -4,25 +4,7 @@ import random
 from models import enabled_models
 
 
-models_str = '# TODO: make models.py editable in OnboardBot UI\n\n'
-
-for model in enabled_models:
-    # import pdb; pdb.set_trace()
-    schema = model.schema()
-    keys = [item for item in schema['properties'].keys()]
-    models_str += f'{model.__tablename__}:\n'
-    for key in keys:
-        models_str += f'    - {key}\n'
-models_str += '\n\n\n'
-print(f'models_str={models_str}')
-
-welcome_message = f'''Welcome to OnboardBot. This is the welcome message.
-
-Today we will be onboarding you onto the default data model, defined in `models.py`
-
-```json
-{models_str}
-```
+welcome_message = f'''Welcome to the OnboardBot Chatbot. Today we will be collecting some data for you to get started with Tyler.
 
 Lets begin!
 '''
@@ -32,7 +14,7 @@ fallback_followup_response = "Oh no! I'm not sure what to ask. Maybe you know wh
 
 def get_onboarding_prompt(message_history, model_meta, model_schema, current_data):
     prompt = '''
-    [INST]You are helping a user onboard onto a new system that needs data from them.
+    You are helping a user onboard onto a new system that needs data from them.
     I'm going to provide you with the message history so far and with the data model that is required.
     You will respond in JSON with two keys: `followup_response` and `current_data`.
     The `followup_response` will be a string that is a politce, succinct follow-up question to retrieve any missing data.
@@ -66,7 +48,6 @@ def get_onboarding_prompt(message_history, model_meta, model_schema, current_dat
 
     Responsd only with the `followup_response` and `current_data` keys. For example, do not include any other keys. Do not include `content=[json response]`.
 
-    [/INST]
     '''
     
     prompt += f' Here is the data model: `{model_schema}`'
