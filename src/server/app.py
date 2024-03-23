@@ -11,9 +11,9 @@ from pydantic import ValidationError
 
 from prompts import (
     get_onboarding_prompt,
-    finished_message,
-    fallback_followup_response,
-    welcome_message
+    get_finished_message,
+    get_fallback_message,
+    get_welcome_message
 )
 from models import enabled_models
 
@@ -57,7 +57,7 @@ async def start_chat():
         url="/public/favicon.png",
     ).send()
     
-    msg = cl.Message(author="OnboardBot", content=welcome_message)
+    msg = cl.Message(author="OnboardBot", content=get_welcome_message())
 
     await msg.send()
     
@@ -104,7 +104,7 @@ async def choice_flow(message_history, current_model, current_data, model_meta):
         await onboarding_flow(message_history, current_model, current_data, model_meta)
 
 async def onboarding_flow(message_history, current_model, current_data, model_meta):
-    followup_response = fallback_followup_response
+    followup_response = get_fallback_message()
     current_model_name = current_model.__tablename__
 
     # If current_model is an OnboardModel , we need to ask the LLM to fill it out based on message history
