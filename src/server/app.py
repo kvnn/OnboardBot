@@ -161,6 +161,9 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
             finished_content = 'We are finished! Here is your data:\n\n'
             for model in finished_data:
                 finished_json[model.__tablename__] = model.model_dump()
+            # TODO: move to prompts.py
+            # for model in finished_data:
+            #     finished_content += f'```{model.__tablename__}```\n\n{pprint.pformat(model.model_dump())}\n\n\n'
             finished_content += f'```\n\n{pprint.pformat(finished_json)}\n\n\n```'
             finished_json = json.dumps(finished_json)
 

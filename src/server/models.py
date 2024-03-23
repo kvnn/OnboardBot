@@ -73,9 +73,9 @@ class FavoriteSoccerPosition(ChoiceModel):
 # ALERT!!
 # This is what dictates what the OnboardBot asks about, and in which order
 enabled_models = [
-    Account,
-    Property,
-    LiveChat,
-    PropertyType,
+    SoccerPlayer,
+    ContactInfo,
+    Measurements,
+    CleatSize,
     FavoriteSoccerPosition
 ]
