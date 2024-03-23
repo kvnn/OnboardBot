@@ -13,7 +13,7 @@ For now OnboardBot is a simple starter project for a [Chainlit](https://github.c
 
 ### Install
 1. `git clone git@github.com:kvnn/OnboardBot.git`
-2. `cd OnboardBoat/src/server`
+2. `cd OnboardBot/src/server`
 3. (optional) `python3 -m venv .venv && source .venv/bin/activate`)
 4. `pip install -r requirements.txt` (TODO: clean this up .. sorry about that ... useful stuff in there tho)
 5. Create an `.env` file in the server directory:
