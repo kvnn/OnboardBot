@@ -4,7 +4,7 @@ import random
 from models import enabled_models
 
 
-welcome_message = f'''Welcome to the OnboardBot Chatbot. Today we will be collecting some data for you to get started with Tyler.
+welcome_message = f'''Before we get started searching for a home, I'd love to collect some basic information on the type of property you're looking for.
 
 Lets begin!
 '''

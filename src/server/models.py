@@ -21,61 +21,46 @@ class ChoiceModel(SQLModel):
 
 
 
-class SoccerPlayer(OnboardModel):
-    player_email_address: str
-    player_name: str
+class Buyer(OnboardModel):
+    first_name: str
+    last_name: str
 
 
 class ContactInfo(OnboardModel):
     '''
     '''
     email_address: str
-    mailing_address: str
-    sms_phone_number: str
+    phone_number: str
 
 
-class Measurements(OnboardModel):
-    shoe_size: str
-    height: str
-    weight: str
+class DesiredProperty(OnboardModel):
+    number_of_bedrooms: int
+    number_of_bathrooms: float
 
 
-class CleatSize(ChoiceModel):
-    ''' What is your cleat size?'''
-    size_6: bool
-    size_6_5: bool
-    size_7: bool
-    size_7_5: bool
-    size_8: bool
-    size_8_5: bool
-    size_9: bool
-    size_9_5: bool
-    size_10: bool
-    size_10_5: bool
-    size_11: bool
-    size_11_5: bool
-    size_12: bool
-    size_12_5: bool
+class PropertyStyle(ChoiceModel):
+    ''' What is your desire property type?'''
+    townhouse: bool
+    condo: bool
+    single_family: bool
+    multi_family: bool
+    land: bool
     other: bool
     
 
-
-class FavoriteSoccerPosition(ChoiceModel):
-    ''' What is your favorite soccer position?'''
-    center_back: bool
-    fullback: bool 
-    midfielder: bool
-    attacking_midfielder: bool
-    forward: bool
+class DealBreakers(OnboardModel):
+    ''' What are your deal breakers for the property?'''
+    what_are_your_must_haves: str
+    things_you_dont_want: str
 
 
 
 # ALERT!!
 # This is what dictates what the OnboardBot asks about, and in which order
 enabled_models = [
-    SoccerPlayer,
+    Buyer,
     ContactInfo,
-    Measurements,
-    CleatSize,
-    FavoriteSoccerPosition
+    DesiredProperty,
+    PropertyStyle,
+    DealBreakers
 ]
