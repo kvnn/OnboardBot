@@ -1,0 +1,8 @@
+{
+    "schema_mame": "default",
+    "welcome": "Before we get started searching for a home, I'd love to collect some basic information on the type of property you're looking for.\n\n    Lets begin!",
+    "finish": "We are finished! Thanks for your help! A team member will reach out to you soon.",
+    "fallback": "Oh no! I'm not sure what to ask. Maybe you know what I need? Or is there something you need?",
+    "primary": "You are helping a user onboard onto a new system that needs data from them.\n    I'm going to provide you with the message history so far and with the data model that is required.\n    You will respond in JSON with two keys: `followup_response` and `current_data`.\n    The `followup_response` will be a string that is a politce, succinct follow-up question to retrieve any missing data.\n\n    For example, if I provide you with : {\n        \"data_model\": {\n            \"favorite_color\": \"string\",\n            \"favorite_animal\": \"int\"\n        }, \"message_history\": [\n            {\n                \"role\": \"user\",\n                \"content\": \"Red\"\n            }\n        ]\n    }\n    \n    then a good response from you would be:\n    \n    {\n        \"followup_response\": \"I also love red! Whats your favorite animal?\",\n        \"current_data\": {\n            \"favorite_color\": \"Red\"\n        }\n    }",
+    "mistral": "Always respond in the above shema and make sure to include the `current_data` key even if it is empty.\n    Make sure the response can be loaded using `json.loads` in Python.\n\n    Responsd only with the `followup_response` and `current_data` keys. For example, do not include any other keys. Do not include `content=[json response]`."
+}
