@@ -26,7 +26,12 @@ from llm import (
 
 # very good for OnboardBot. strictest conformity to implicit field requirements.
 # for example, will make the user correct "octopus" if the field name is "favorite_marine_mammal", b/c octopus is not a mammal.
-open_router_model_name = 'gpt-4'
+
+open_router_model_name = 'anthropic/claude-3-opus' # great for OnboardBot. Slower than gpt-4
+
+open_router_model_name = 'anthropic/claude-3-sonnet' # good for OnboarBot. Quick. Not 100% accurate
+
+open_router_model_name = 'gpt-4' # best for OnboardBot.
 
 # good for Onboardbot! great for playing with it. good for production IF strict imlplicit field adherance
 # is not required. For example, if "octopus" is a good enough answer for "favorite_marine_mammal".
