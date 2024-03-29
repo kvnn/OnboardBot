@@ -1,6 +1,11 @@
 from typing import Optional
+import yaml
 
+from pydantic import create_model
 from sqlmodel import Field, SQLModel
+
+
+models_yaml_filename = 'models.yml'
 
 
 class OnboardModel(SQLModel):
@@ -20,47 +25,38 @@ class ChoiceModel(SQLModel):
     pass
 
 
+def load_models_from_yaml(file_path):
+    with open(file_path, 'r') as file:
+        data = yaml.safe_load(file)
 
-class Buyer(OnboardModel):
-    first_name: str
-    last_name: str
+    models = {}
+    for model_data in data['models']:
+        model_name = model_data['name']
+        model_fields = {}
+        for field in model_data['fields']:
+            field_name = field['name']
+            if 'type' in field:
+                field_type = eval(field['type'])
+            else:
+                field_type = bool
+            model_fields[field_name] = (field_type, ...)
 
+        class_type = model_data['class_type']
+        base_class = eval(class_type)
 
-class ContactInfo(OnboardModel):
-    '''
-    '''
-    email_address: str
-    phone_number: str
+        description = model_data.get('description', '')
+        if description:
+            model_cls = create_model(model_name, __base__=base_class, __doc__=description, **model_fields)
+        else:
+            model_cls = create_model(model_name, __base__=base_class, **model_fields)
 
+        models[model_name] = model_cls
 
-class DesiredProperty(OnboardModel):
-    number_of_bedrooms: int
-    number_of_bathrooms: float
+    enabled_models = [models[model_name] for model_name in data['enabled_models']]
 
-
-class PropertyStyle(ChoiceModel):
-    ''' What is your desire property type?'''
-    townhouse: bool
-    condo: bool
-    single_family: bool
-    multi_family: bool
-    land: bool
-    other: bool
-    
-
-class DealBreakers(OnboardModel):
-    ''' What are your deal breakers for the property?'''
-    what_are_your_must_haves: str
-    things_you_dont_want: str
+    return models, enabled_models
 
 
+# Load the models from the yaml file
+models, enabled_models = load_models_from_yaml(models_yaml_filename)
 
-# ALERT!!
-# This is what dictates what the OnboardBot asks about, and in which order
-enabled_models = [
-    Buyer,
-    ContactInfo,
-    DesiredProperty,
-    PropertyStyle,
-    DealBreakers
-]
