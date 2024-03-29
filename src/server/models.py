@@ -1,11 +1,19 @@
+from datetime import datetime
 from typing import Optional
 import yaml
 
 from pydantic import create_model
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, create_engine
 
 
 models_yaml_filename = 'models.yml'
+
+
+class Onboarding(SQLModel, table=True):
+    id: str | None = Field(default=None, primary_key=True)
+    data: str
+    created: str | None = Field(default=datetime.now().isoformat())
+    updated: str | None = Field(default=None)
 
 
 class OnboardModel(SQLModel):
@@ -35,11 +43,11 @@ def load_models_from_yaml(file_path):
         model_fields = {}
         for field in model_data['fields']:
             field_name = field['name']
-            if 'type' in field:
-                field_type = eval(field['type'])
+            if model_data['class_type'] == 'ChoiceModel':
+                model_fields[field_name] = (bool, Field(default=False))
             else:
-                field_type = bool
-            model_fields[field_name] = (field_type, ...)
+                field_type = eval(field.get('type', 'str'))
+                model_fields[field_name] = (field_type, ...)
 
         class_type = model_data['class_type']
         base_class = eval(class_type)

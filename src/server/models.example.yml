@@ -1,20 +1,17 @@
 # These are the model definitions which will be loaded as Pydantic class instances
+# If field types are not listed, they will default to `str`.
 models:
   - name: Buyer
     class_type: OnboardModel
     fields:
       - name: first_name
-        type: str
       - name: last_name
-        type: str
 
   - name: ContactInfo
     class_type: OnboardModel
     fields:
       - name: email_address
-        type: str
       - name: phone_number
-        type: str
 
   - name: DesiredProperty
     class_type: OnboardModel
@@ -40,7 +37,6 @@ models:
     description: What are the must-haves for the property?
     fields:
       - name: must_haves
-        type: str
 
 
 # This is the list of models that will be enabled for the application, in the given order
