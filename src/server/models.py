@@ -1,16 +1,18 @@
 from datetime import datetime
+import json
+import os
 from typing import Optional
 import yaml
 
 from pydantic import create_model
-from sqlmodel import Field, SQLModel, create_engine
+from sqlmodel import Field, SQLModel, create_engine, Session
 
 
-models_yaml_filename = 'models.yml'
+db_engine_url = os.environ.get('DB_ENGINE_URL', 'sqlite:///OnboardBot.db')
 
 
 class Onboarding(SQLModel, table=True):
-    id: str | None = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     data: str
     created: str | None = Field(default=datetime.now().isoformat())
     updated: str | None = Field(default=None)
@@ -32,6 +34,20 @@ class ChoiceModel(SQLModel):
     NOTE: the field types MUST be bools'''
     pass
 
+
+def hyrdate_db():
+    engine = create_engine(db_engine_url)
+    SQLModel.metadata.create_all(engine)
+
+
+def save_db_session(onboard_session: Onboarding = None, finished_models: dict = {}):
+    engine = create_engine(db_engine_url)
+    onboard_session.updated = datetime.now().isoformat()
+    onboard_session.data = json.dumps(finished_models)
+    session = Session(engine)
+    session.add(onboard_session)
+    session.commit()
+    return onboard_session
 
 def load_models_from_yaml(file_path):
     with open(file_path, 'r') as file:
@@ -64,7 +80,4 @@ def load_models_from_yaml(file_path):
 
     return models, enabled_models
 
-
-# Load the models from the yaml file
-models, enabled_models = load_models_from_yaml(models_yaml_filename)
 

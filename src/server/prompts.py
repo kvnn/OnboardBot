@@ -1,9 +1,3 @@
-import pprint
-import random
-
-from models import enabled_models
-
-
 welcome_message = f'''Before we get started searching for a home, I'd love to collect some basic information on the type of property you're looking for.
 
 Lets begin!
@@ -39,6 +33,11 @@ def get_onboarding_prompt(message_history, model_meta, model_schema, current_dat
             "favorite_color": "Red"
         }
     }
+
+    This is not mission-critical software: you need to be opinionated to optimize the user experience. 
+    For example, if a user is asked to provide their first and last name, and they provide two names,
+    you should assume that the first name given is their first name and the last name given is their last name.
+    (I'm surprised I have to explain this ... but I do ... so you should work harder to impress me with your reasoning and responses!)
     '''
 
     # Mistral support

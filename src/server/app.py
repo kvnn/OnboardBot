@@ -1,4 +1,5 @@
 import json
+import yaml
 
 import chainlit as cl
 from chainlit.auth import create_jwt
@@ -15,11 +16,14 @@ from prompts import (
     fallback_followup_response,
     welcome_message
 )
-from models import enabled_models
+from models import load_models_from_yaml, hyrdate_db, save_db_session, Onboarding
 
 from llm import (
     ask_llm_simple_json,
 )
+
+
+models_yaml_filename = 'models.yml'
 
 # open_router_model_name = 'gpt-3.5-turbo'    # not good for OnboardBot
 # open_router_model_name = 'mistralai/mistral-medium' # not good for Onboardbot?
@@ -37,6 +41,13 @@ open_router_model_name = 'gpt-4' # best for OnboardBot.
 # is not required. For example, if "octopus" is a good enough answer for "favorite_marine_mammal".
 # open_router_model_name = 'anthropic/claude-3-haiku'
 
+# Load the models from the yaml file
+models, enabled_models = load_models_from_yaml(models_yaml_filename)
+
+# Initialize the database
+hyrdate_db()
+
+
 @app.get("/health-check", status_code=200)
 def health_check():
     return {'status':'ok'}
@@ -51,7 +62,6 @@ async def custom_auth():
 
 @cl.on_chat_start
 async def start_chat():
-    cl.user_session.set('finished_data', [])
     cl.user_session.set(
         "message_history",
         [
@@ -132,18 +142,29 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
             "content": content
         })
 
-        current_data = content['current_data']
+        # TODO: if not content, there is an error we need to communicate / handle
+
+        current_data = content.get('current_data', {})
         followup_response = content.get('followup_response', followup_response)
 
     try:        
         # If the current model can be created from the current data, then its portion of the onboarding is complete
         finished_model = current_model(**current_data)
-        finished_data = cl.user_session.get('finished_data')
-        finished_data.append(finished_model)
+        finished_data = cl.user_session.get('finished_data', {})
+        finished_data[finished_model.__tablename__] = finished_model.model_dump()
         cl.user_session.set('finished_data', finished_data)
         current_data_content = pprint.pformat(current_data)
         current_data_content = f'```{current_model_name}``` = ```{current_data_content}```'
-        msg = cl.Message(author="OnboardBot", content=current_data_content)
+
+        try:
+            onboard_session = cl.user_session.get('onboard_session', Onboarding(data=finished_data))
+            onboard_session = save_db_session(onboard_session, finished_data)
+            cl.user_session.set('onboard_session', onboard_session)
+            msg_content = content=current_data_content
+        except Exception as e:
+            msg_content = f'There was an error saving to database, but we will carry on! The error was {e}'
+        
+        msg = cl.Message(author="OnboardBot", content=msg_content)
         await msg.send()
 
         # Set up the next model and enter the Onboarding Loop
@@ -162,18 +183,13 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
                 await onboarding_flow(message_history, current_model, current_data, model_meta)
         # Finished Onboarding
         else:
-            finished_json = {}
             finished_content = 'We are finished! Here is your data:\n\n'
-            for model in finished_data:
-                finished_json[model.__tablename__] = model.model_dump()
-            # TODO: move to prompts.py
-            # for model in finished_data:
-            #     finished_content += f'```{model.__tablename__}```\n\n{pprint.pformat(model.model_dump())}\n\n\n'
-            finished_content += f'```\n\n{pprint.pformat(finished_json)}\n\n\n```'
-            finished_json = json.dumps(finished_json)
+            finished_content += '```yaml\n'
+            finished_content += yaml.dump(finished_data, default_flow_style=False)
+            finished_content += '```'
 
             actions = [
-                cl.Action(label="Send to team", name="save_models", value=finished_json, description="Do it!")
+                cl.Action(label="Send to team", name="save_models", value=finished_content, description="Do it!")
             ]
             msg = cl.Message(author="OnboardBot", content=finished_content, actions=actions)
             await msg.send()

@@ -23,7 +23,7 @@ models:
 
   - name: PropertyStyle
     class_type: ChoiceModel
-    description: What is your desire property type?
+    description: What is your desired property type?
     fields:
       - name: townhouse
       - name: condo
