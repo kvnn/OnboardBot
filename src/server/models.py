@@ -49,7 +49,9 @@ def save_db_session(onboard_session: Onboarding = None, finished_models: dict = 
     session.commit()
     return onboard_session
 
-def load_models_from_yaml(file_path):
+def load_models_from_yaml(filename):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, filename)
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
 
