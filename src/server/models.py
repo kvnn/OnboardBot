@@ -28,12 +28,15 @@ class OnboardModel(SQLModel):
 
 class ChoiceModel(SQLModel):
     ''' You can use this to create a list of choices for the user to select from.
-    
     Simply subclass this model, add the message to send to the user as its docstring and add the choices as fields.
-    
-    NOTE: the field types MUST be bools'''
+    '''
     pass
 
+class MultipleChoiceModel(SQLModel):
+    # ALERT: In Progress
+    ''' You can use this to create a chckbox group of choices for the user to select from.
+    '''
+    pass
 
 def hyrdate_db():
     engine = create_engine(db_engine_url)

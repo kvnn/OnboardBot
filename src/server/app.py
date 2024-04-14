@@ -87,6 +87,29 @@ async def save_models(action):
     msg = cl.Message(author="OnboardBot", content='Coming soon!')
     await msg.send()
 
+async def multiple_choice_flow(message_history, current_model, current_data, model_meta):
+    options = []
+    message = current_model.__doc__
+
+    for field_name, field_type in current_model.__annotations__.items():
+        options.append(cl.CheckboxGroupOption(
+            label = field_name,
+            name = field_name,
+            value = field_name
+        ))
+
+    checkbox_group = cl.CheckboxGroup(
+        name=current_model.__tablename__,
+        options=options
+    )
+    print(f'[multiple_choice_flow]: options={options}')
+
+    # Note: this will await until the user selects a choice
+    res = await cl.AskCheckboxMessage(
+        content=message,
+        checkbox_group=checkbox_group
+    ).send()
+
 async def choice_flow(message_history, current_model, current_data, model_meta):
     actions = []
     message = current_model.__doc__
@@ -177,6 +200,8 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
             if current_model.__base__.__name__ == 'ChoiceModel':
                 # if its a ChoiceModel, then we ask the user to make a choice
                 await choice_flow(message_history, current_model, current_data, model_meta)
+            elif current_model.__base__.__name__ == 'MultipleChoiceModel':
+                await multiple_choice_flow(message_history, current_model, current_data, model_meta)
             else:
                 # if this is an OnboardModel, then we continue the onboarding loop            
                 # Note: this is a recursive call
