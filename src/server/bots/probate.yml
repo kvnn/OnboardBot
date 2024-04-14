@@ -1,132 +1,152 @@
 models:
   - name: UserGoal
-    class_type: ChoiceModel
+    class_type: Choice
     description: How can I help you?/What brings you here today?
-    fields:
-      - death of a family member
-      - want to create a will
-      - something else
-  # If Death
+    choices:
+      - key: death_of_family_member
+      - key: want_to_create_will
+      - key: something_else
+
   - name: DeathInfoWho
-    description: I’m very sorry for your loss.  I know the legal process can be overwhelming. May I ask the name of the person who passed away?
+    description: I’m very sorry for your loss. I know the legal process can be overwhelming. May I ask the name of the person who passed away?
     class_type: Question
     conditional:
       - type: ShowForChoice
         for_choice: UserGoal
-        for_value: death of a family member
+        for_value: death_of_family_member
     fields:
       name: deceased_name
+
   - name: DeathInfoRelation
     description: How were you related?
     class_type: Question
     conditional:
       - type: ShowForChoice
         for_choice: UserGoal
-        for_value: death of a family member
+        for_value: death_of_family_member
     fields:
       name: relation
+
   - name: DeathInfoWhereLived
-    description: What city / state / country did they live when they passed? 
+    description: What city/state/country did they live in when they passed?
     class_type: Question
     conditional:
       - type: ShowForChoice
         for_choice: UserGoal
-        for_value: death of a family member
+        for_value: death_of_family_member
     fields:
       name: city_state_country
+
   - name: DeathInfoPossessions
     description: What did they own when they died?
     class_type: Question
     conditional:
       - type: ShowForChoice
         for_choice: UserGoal
-        for_value: death of a family member
+        for_value: death_of_family_member
     fields:
       name: estate_items
+
   - name: DeathInfoWorth
     description: How much do you think it was all worth? We ask this because there are levels that determine how the estate is handled.
     class_type: Question
     conditional:
       - type: ShowForChoice
         for_choice: UserGoal
-        for_value: death of a family member
+        for_value: death_of_family_member
     fields:
       name: estate_value_estimation
+
   - name: DeathInfoWill
     description: Do you know if they left a will or a trust?
     class_type: Choice
     conditional:
       - type: ShowForChoice
         for_choice: UserGoal
-        for_value: death of a family member
-    fields:
-      - name: Yes, they did
-      - name: No, they did not
-      - name: I'm not sure
+        for_value: death_of_family_member
+    choices:
+      - key: yes
+      - key: no
+      - key: not_sure
 
-  # If Will
   - name: WillInfo
     description: Great! I can help with that. Before we get started, let me know if any of the following apply to you
     class_type: Choice
     conditional:
       - type: ShowForChoice
         for_choice: UserGoal
-        for_value: want to create a will
-    fields:
-      - name: blended family 
-      - name: family conflict
-      - name: family member with special needs
-      - name: own a business or other special asset(s)
-      - name: none of the above
+        for_value: want_to_create_will
+    choices:
+      - key: blended_family
+      - key: family_conflict
+      - key: family_special_needs
+      - key: business_assets
+      - key: none_of_the_above
 
-  # If Will && Simple Estate
   - name: SimpleEstateInfo
     class_type: Question
     conditional:
       - type: ShowForChoice
         for_choice: WillInfo
-        for_value: none of the above
+        for_value: none_of_the_above
     fields:
       - name: legal_name
       - name: spouse_legal_name
       - name: names_of_inheritors
       - name: birthdates_of_inheritors
+
   - name: SimpleEstateDistributionType
     class_type: Choice
     description: Please choose the statement below that you agree with the most
     conditional:
       - type: ShowForChoice
         for_choice: WillInfo
-        for_value: none of the above
-    fields:
-      - name: We want our property divided equally among our children and it’s up to them to decide whether to keep or sell any of our property when dividing it among themselves.
-      - name: We want our property divided equally among our children and we want them to sell everything after we die and then divide the proceeds.
-  - name: SimpleEstateAdministrators
+        for_value: none_of_the_above
+    choices:
+      - key: equal_division_keep_or_sell
+        label: We want our property divided equally among our children and it’s up to them to decide whether to keep or sell any of our property when dividing it among themselves.
+      - key: equal_division_sell_all
+        label: We want our property divided equally among our children and we want them to sell everything after we die and then divide the proceeds.
+
+  - name: SimpleEstateAdministratorNames
     class_type: Question
+    description: If you are unable to make decisions or are no longer around, what are the full names of people that should make decisions for you and carry out your wishes? These will be your Administrators.
     conditional:
       - type: ShowForChoice
         for_choice: WillInfo
-        for_value: none of the above
+        for_value: none_of_the_above
     fields:
-      - name: names_of_inheritors
-      - name: relationship_to_inheritors
-    description: If you are unable to make decisions or are no longer around, what are the full names of people that should make decisions for you and carry out your wishes?
+      - key: names_of_inheritors
+    
+  - name: SimpleEstateAdministratorRelations
+    class_type: Question
+    description: What is your relationship to the Administrators you named?
+    conditional:
+      - type: ShowForChoice
+        for_choice: WillInfo
+        for_value: none_of_the_above
+    fields:
+      - key: relations_to_inheritors
+
   - name: SimpleEstateDecisionProcess
     class_type: Choice
+    description: How do you want your Administrators to make decisions?
     conditional:
       - type: ShowForChoice
         for_choice: WillInfo
-        for_value: none of the above
-    fields:
-    - name: make decisions together 
-    - name: act alone in the order listed
+        for_value: none_of_the_above
+    choices:
+      - key: together
+        label: We want them to make decisions together
+      - key: alone_with_heirarchy
+        label: We want them to make decisions alone, in the following heirarchy of highest to lowest authority
+
   - name: SimpleEstateCharity
     class_type: Question
+    description: If for some reason, no one is available to inherit our estate, it should be donated to the following charity.
     conditional:
       - type: ShowForChoice
         for_choice: WillInfo
-        for_value: none of the above
+        for_value: none_of_the_above
     fields:
-      - name: Charity Name
-    description: If for some reason, no one is available to inherit our estate, it should be donated to the following charity
-
+      - name: charity_name
