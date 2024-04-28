@@ -7,12 +7,6 @@ models:
       - name: first_name
       - name: last_name
 
-  - name: ContactInfo
-    class_type: Question
-    fields:
-      - name: email_address
-      - name: phone_number
-
   - name: DesiredProperty
     class_type: Question
     fields:
@@ -32,6 +26,15 @@ models:
       - name: land
       - name: other
 
+  - name: OtherInfo
+    class_type: Question
+    conditions:
+      - type: ShowForChoice
+        for_choice: PropertyStyle
+        for_value: other
+    fields:
+      - name: description_of_dream_property
+
   - name: MustHave
     class_type: Question
     description: What are the must-haves for the property?
@@ -42,7 +45,8 @@ models:
 # This is the list of models that will be enabled for the application, in the given order
 enabled_models:
   - Buyer
-  - ContactInfo
-  - DesiredProperty
+  # - ContactInfo
+  # - DesiredProperty
   - PropertyStyle
-  - MustHave
+  - OtherInfo
+  # - MustHave

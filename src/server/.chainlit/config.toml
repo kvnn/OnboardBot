@@ -2,6 +2,7 @@
 # Whether to enable telemetry (default: true). No personal data is collected.
 enable_telemetry = true
 
+
 # List of environment variables to be provided by each user to use the app.
 user_env = []
 
@@ -28,7 +29,6 @@ unsafe_allow_html = false
 latex = false
 
 # Authorize users to upload files with messages
-multi_modal = false
 
 # Allows user to use speech to text
 [features.speech_to_text]
@@ -38,15 +38,16 @@ multi_modal = false
 
 [UI]
 # Name of the app and chatbot.
-name = "OnboardBot"
-
-default_collapse_content = false
+name = "Chatbot"
 
 # Show the readme while the thread is empty.
-show_readme_as_default = false
+show_readme_as_default = true
 
 # Description of the app and chatbot. This is used for HTML tags.
 # description = ""
+
+# Large size content are by default collapsed for a cleaner ui
+default_collapse_content = true
 
 # The default value for the expand messages settings.
 default_expand_messages = false
@@ -55,12 +56,15 @@ default_expand_messages = false
 hide_cot = false
 
 # Link to your github repo. This will add a github button in the UI's header.
-github = "https://github.com/kvnn/OnboardBot"
+# github = ""
 
 # Specify a CSS file that can be used to customize the user interface.
 # The CSS file can be served from the public directory or via an external link.
-custom_css = "/public/OnboardBot-public.css"
-custom_js = "/public/OnboardBot-public.js"
+# custom_css = "/public/test.css"
+
+# Specify a Javascript file that can be used to customize the user interface.
+# The Javascript file can be served from the public directory.
+# custom_js = "/public/test.js"
 
 # Specify a custom font url.
 # custom_font = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
@@ -89,4 +93,4 @@ custom_js = "/public/OnboardBot-public.js"
 
 
 [meta]
-generated_by = "1.0.200"
+generated_by = "1.0.401"

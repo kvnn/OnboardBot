@@ -22,8 +22,8 @@ from llm import (
     ask_llm_simple_json,
 )
 
-
-models_yaml_filename = 'models.yml'
+with open('config.yml', 'r') as file:
+    config = yaml.safe_load(file)
 
 # open_router_model_name = 'gpt-3.5-turbo'    # not good for OnboardBot
 # open_router_model_name = 'mistralai/mistral-medium' # not good for Onboardbot?
@@ -42,7 +42,7 @@ open_router_model_name = 'gpt-4' # best for OnboardBot.
 # open_router_model_name = 'anthropic/claude-3-haiku'
 
 # Load the models from the yaml file
-models, enabled_models = load_models_from_yaml(models_yaml_filename)
+models, enabled_models = load_models_from_yaml(config.get('models_yaml_filename', 'models.yml'))
 
 # Initialize the database
 hyrdate_db()
@@ -62,6 +62,7 @@ async def custom_auth():
 
 @cl.on_chat_start
 async def start_chat():
+    print(f'Chat started')
     cl.user_session.set(
         "message_history",
         [
@@ -141,13 +142,69 @@ async def choice_flow(message_history, current_model, current_data, model_meta):
 
         await onboarding_flow(message_history, current_model, current_data, model_meta)
 
+async def continue_or_end_onboarding_flow(message_history, current_model, current_data, model_meta):
+    finished_data = cl.user_session.get('finished_data', {})
+
+    # Set up the next model and enter the Onboarding Loop
+    if enabled_models.index(current_model) < len(enabled_models) - 1:
+        current_model = enabled_models[enabled_models.index(current_model) + 1]
+        current_data = {}
+        cl.user_session.set('current_model', current_model)
+        cl.user_session.set('current_data', current_data)
+
+        # if its a Choice, then we ask the user to make a choice
+        if current_model.__base__.__name__ == 'Choice':
+            await choice_flow(message_history, current_model, current_data, model_meta)
+        # TODO: Multiple Choice
+        elif current_model.__base__.__name__ == 'MultipleChoice':
+            await multiple_choice_flow(message_history, current_model, current_data, model_meta)
+        # if this is a Question, then we continue the onboarding loop
+        else:
+            # Note: this is a recursive call
+            await onboarding_flow(message_history, current_model, current_data, model_meta)
+    # Finished Onboarding
+    else:
+        finished_content = 'We are finished! Here is your data:\n\n'
+        finished_content += '```yaml\n'
+        finished_content += yaml.dump(finished_data, default_flow_style=False)
+        finished_content += '```'
+
+        actions = [
+            cl.Action(label="Send to team", name="save_models", value=finished_content, description="Do it!")
+        ]
+        msg = cl.Message(author="OnboardBot", content=finished_content, actions=actions)
+        await msg.send()
+
 async def onboarding_flow(message_history, current_model, current_data, model_meta):
+    conditions_exist = len(current_model.conditions)
+    conditions_met = False
     followup_response = fallback_followup_response
     current_model_name = current_model.__tablename__
+    finished_data = cl.user_session.get('finished_data', {})
 
-    # If current_model is an OnboardModel , we need to ask the LLM to fill it out based on message history
-    # If its a ChoiceModel, then the user has already made a choice
-    if current_model.__base__.__name__ == 'OnboardModel':
+    print(f'[onboarding_flow] finished_data={finished_data}')
+    # If current_model is conditional, then lets run the condition
+    for conditional in current_model.conditions:
+        if conditional.get('type') == 'ShowForChoice':
+            field_name = conditional.get('for_choice')
+            # Ohhhhh this is gross. Refactor holistically to make finished_models / enabled_models more cogent throughout the app lifecycle.
+            enabled_models_by_name = {model.__name__: model for model in enabled_models}
+            our_finished_data_keyname = enabled_models_by_name[field_name].__tablename__
+            print(f'enabled_models_by_name={enabled_models_by_name}')
+            print(f'our_finished_data_keyname={our_finished_data_keyname}')
+            if field_name in enabled_models_by_name:
+                if finished_data[our_finished_data_keyname][conditional.get('for_value')]:
+                    conditions_met = True
+            else:
+                print(f'[onboarding_flow] error: conditional field {field_name} not in curent data')
+
+    # If the conditions for showing this question / model are not met, skip it
+    if conditions_exist and not conditions_met:
+        return await continue_or_end_onboarding_flow(message_history, current_model, current_data, model_meta)
+
+    # If current_model is a Question , we need to ask the LLM to fill it out based on message history
+    # If its a Choice, then the user has already made a choice
+    if current_model.__base__.__name__ == 'Question':
         prompt = get_onboarding_prompt(
             message_history=message_history,
             model_schema=current_model.schema_json(),
@@ -173,9 +230,9 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
     try:        
         # If the current model can be created from the current data, then its portion of the onboarding is complete
         finished_model = current_model(**current_data)
-        finished_data = cl.user_session.get('finished_data', {})
         finished_data[finished_model.__tablename__] = finished_model.model_dump()
         cl.user_session.set('finished_data', finished_data)
+        print(f'finished_data={finished_data}')
         current_data_content = pprint.pformat(current_data)
         current_data_content = f'```{current_model_name}``` = ```{current_data_content}```'
 
@@ -190,34 +247,7 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
         msg = cl.Message(author="OnboardBot", content=msg_content)
         await msg.send()
 
-        # Set up the next model and enter the Onboarding Loop
-        if enabled_models.index(current_model) < len(enabled_models) - 1:
-            current_model = enabled_models[enabled_models.index(current_model) + 1]
-            current_data = {}
-            cl.user_session.set('current_model', current_model)
-            cl.user_session.set('current_data', current_data)
-
-            if current_model.__base__.__name__ == 'ChoiceModel':
-                # if its a ChoiceModel, then we ask the user to make a choice
-                await choice_flow(message_history, current_model, current_data, model_meta)
-            elif current_model.__base__.__name__ == 'MultipleChoiceModel':
-                await multiple_choice_flow(message_history, current_model, current_data, model_meta)
-            else:
-                # if this is an OnboardModel, then we continue the onboarding loop            
-                # Note: this is a recursive call
-                await onboarding_flow(message_history, current_model, current_data, model_meta)
-        # Finished Onboarding
-        else:
-            finished_content = 'We are finished! Here is your data:\n\n'
-            finished_content += '```yaml\n'
-            finished_content += yaml.dump(finished_data, default_flow_style=False)
-            finished_content += '```'
-
-            actions = [
-                cl.Action(label="Send to team", name="save_models", value=finished_content, description="Do it!")
-            ]
-            msg = cl.Message(author="OnboardBot", content=finished_content, actions=actions)
-            await msg.send()
+        await continue_or_end_onboarding_flow(message_history, current_model, current_data, model_meta)
 
     except ValidationError as e:
         print(f'current_data ValidationError: {e}')
@@ -229,6 +259,7 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
 
 @cl.on_message
 async def main(message: cl.Message):
+    print('message received')
     current_model = cl.user_session.get("current_model", enabled_models[0])
     current_data = cl.user_session.get("current_data", {})
     model_meta = current_model.__doc__ if current_model.__doc__ else ""

@@ -18,7 +18,7 @@ class Onboarding(SQLModel, table=True):
     updated: str | None = Field(default=None)
 
 
-class OnboardModel(SQLModel):
+class Question(SQLModel):
     ''' You can use this to create a model for the user to fill out.'''
 
     # TODO: fix the above
@@ -26,17 +26,18 @@ class OnboardModel(SQLModel):
     pass
 
 
-class ChoiceModel(SQLModel):
+class Choice(SQLModel):
     ''' You can use this to create a list of choices for the user to select from.
     Simply subclass this model, add the message to send to the user as its docstring and add the choices as fields.
     '''
     pass
 
-class MultipleChoiceModel(SQLModel):
+class MultipleChoice(SQLModel):
     # ALERT: In Progress
     ''' You can use this to create a chckbox group of choices for the user to select from.
     '''
     pass
+
 
 def hyrdate_db():
     engine = create_engine(db_engine_url)
@@ -64,7 +65,7 @@ def load_models_from_yaml(filename):
         model_fields = {}
         for field in model_data['fields']:
             field_name = field['name']
-            if model_data['class_type'] == 'ChoiceModel':
+            if model_data['class_type'] == 'Choice':
                 model_fields[field_name] = (bool, Field(default=False))
             else:
                 field_type = eval(field.get('type', 'str'))
@@ -78,6 +79,8 @@ def load_models_from_yaml(filename):
             model_cls = create_model(model_name, __base__=base_class, __doc__=description, **model_fields)
         else:
             model_cls = create_model(model_name, __base__=base_class, **model_fields)
+
+        model_cls.conditions = model_data.get('conditions', [])
 
         models[model_name] = model_cls
 

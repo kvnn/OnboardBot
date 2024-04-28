@@ -10,7 +10,7 @@ models:
   - name: DeathInfoWho
     description: I’m very sorry for your loss. I know the legal process can be overwhelming. May I ask the name of the person who passed away?
     class_type: Question
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: UserGoal
         for_value: death_of_family_member
@@ -20,7 +20,7 @@ models:
   - name: DeathInfoRelation
     description: How were you related?
     class_type: Question
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: UserGoal
         for_value: death_of_family_member
@@ -30,7 +30,7 @@ models:
   - name: DeathInfoWhereLived
     description: What city/state/country did they live in when they passed?
     class_type: Question
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: UserGoal
         for_value: death_of_family_member
@@ -40,7 +40,7 @@ models:
   - name: DeathInfoPossessions
     description: What did they own when they died?
     class_type: Question
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: UserGoal
         for_value: death_of_family_member
@@ -50,7 +50,7 @@ models:
   - name: DeathInfoWorth
     description: How much do you think it was all worth? We ask this because there are levels that determine how the estate is handled.
     class_type: Question
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: UserGoal
         for_value: death_of_family_member
@@ -60,7 +60,7 @@ models:
   - name: DeathInfoWill
     description: Do you know if they left a will or a trust?
     class_type: Choice
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: UserGoal
         for_value: death_of_family_member
@@ -72,7 +72,7 @@ models:
   - name: WillInfo
     description: Great! I can help with that. Before we get started, let me know if any of the following apply to you
     class_type: Choice
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: UserGoal
         for_value: want_to_create_will
@@ -85,7 +85,7 @@ models:
 
   - name: SimpleEstateInfo
     class_type: Question
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: WillInfo
         for_value: none_of_the_above
@@ -98,7 +98,7 @@ models:
   - name: SimpleEstateDistributionType
     class_type: Choice
     description: Please choose the statement below that you agree with the most
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: WillInfo
         for_value: none_of_the_above
@@ -111,7 +111,7 @@ models:
   - name: SimpleEstateAdministratorNames
     class_type: Question
     description: If you are unable to make decisions or are no longer around, what are the full names of people that should make decisions for you and carry out your wishes? These will be your Administrators.
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: WillInfo
         for_value: none_of_the_above
@@ -121,7 +121,7 @@ models:
   - name: SimpleEstateAdministratorRelations
     class_type: Question
     description: What is your relationship to the Administrators you named?
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: WillInfo
         for_value: none_of_the_above
@@ -131,7 +131,7 @@ models:
   - name: SimpleEstateDecisionProcess
     class_type: Choice
     description: How do you want your Administrators to make decisions?
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: WillInfo
         for_value: none_of_the_above
@@ -144,7 +144,7 @@ models:
   - name: SimpleEstateCharity
     class_type: Question
     description: If for some reason, no one is available to inherit our estate, it should be donated to the following charity.
-    conditional:
+    conditions:
       - type: ShowForChoice
         for_choice: WillInfo
         for_value: none_of_the_above
