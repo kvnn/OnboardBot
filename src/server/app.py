@@ -105,16 +105,6 @@ async def multi_choice_flow(message_history, current_model, current_data, model_
             name = field_name,
             value = field_name
         ))
-    import pdb; pdb.set_trace()
-    
-    options = [
-        CheckboxGroupOption(name='townhouse', value='townhouse', label='townhouse'),
-        CheckboxGroupOption(name='condo', value='condo', label='condo'),
-        CheckboxGroupOption(name='single_family', value='single_family', label='single_family'),
-        CheckboxGroupOption(name='multi_family', value='multi_family', label='multi_family'),
-        CheckboxGroupOption(name='land', value='land', label='land'),
-        CheckboxGroupOption(name='other', value='other', label='other')
-    ]
 
     checkbox_group = cl.CheckboxGroup(
         name=current_model.__tablename__,
