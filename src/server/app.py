@@ -1,4 +1,5 @@
 import json
+import os
 import yaml
 
 import chainlit as cl
@@ -22,7 +23,11 @@ from llm import (
     ask_llm_simple_json,
 )
 
-with open('config.yml', 'r') as file:
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(current_dir, 'config.yml')
+    
+with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 # open_router_model_name = 'gpt-3.5-turbo'    # not good for OnboardBot
@@ -42,7 +47,9 @@ open_router_model_name = 'gpt-4' # best for OnboardBot.
 # open_router_model_name = 'anthropic/claude-3-haiku'
 
 # Load the models from the yaml file
-models, enabled_models = load_models_from_yaml(config.get('models_yaml_filename', 'models.yml'))
+models_config_path = os.path.join(current_dir, config['models_config_path'])
+print(f'models_config_path={models_config_path}')
+enabled_models = load_models_from_yaml(models_config_path)
 
 # Initialize the database
 hyrdate_db()
@@ -88,7 +95,7 @@ async def save_models(action):
     msg = cl.Message(author="OnboardBot", content='Coming soon!')
     await msg.send()
 
-async def multiple_choice_flow(message_history, current_model, current_data, model_meta):
+async def multi_choice_flow(message_history, current_model, current_data, model_meta):
     options = []
     message = current_model.__doc__
 
@@ -98,18 +105,39 @@ async def multiple_choice_flow(message_history, current_model, current_data, mod
             name = field_name,
             value = field_name
         ))
+    import pdb; pdb.set_trace()
+    
+    options = [
+        CheckboxGroupOption(name='townhouse', value='townhouse', label='townhouse'),
+        CheckboxGroupOption(name='condo', value='condo', label='condo'),
+        CheckboxGroupOption(name='single_family', value='single_family', label='single_family'),
+        CheckboxGroupOption(name='multi_family', value='multi_family', label='multi_family'),
+        CheckboxGroupOption(name='land', value='land', label='land'),
+        CheckboxGroupOption(name='other', value='other', label='other')
+    ]
 
     checkbox_group = cl.CheckboxGroup(
         name=current_model.__tablename__,
         options=options
     )
-    print(f'[multiple_choice_flow]: options={options}')
+    print(f'[multi_choice_flow]: options={options}')
 
     # Note: this will await until the user selects a choice
     res = await cl.AskCheckboxMessage(
         content=message,
         checkbox_group=checkbox_group
     ).send()
+
+    if res:
+        selected_names = [option['name'] for option in res['selected']]
+        for field_name in current_model.__annotations__.keys():
+            if field_name in selected_names:
+                current_data[field_name] = True
+            else:
+                current_data[field_name] = False
+        cl.user_session.set('current_data', current_data)
+
+    await onboarding_flow(message_history, current_model, current_data, model_meta)
 
 async def choice_flow(message_history, current_model, current_data, model_meta):
     actions = []
@@ -140,7 +168,7 @@ async def choice_flow(message_history, current_model, current_data, model_meta):
         current_data[res.get("value")] = True
         cl.user_session.set('current_data', current_data)
 
-        await onboarding_flow(message_history, current_model, current_data, model_meta)
+    await onboarding_flow(message_history, current_model, current_data, model_meta)
 
 async def continue_or_end_onboarding_flow(message_history, current_model, current_data, model_meta):
     finished_data = cl.user_session.get('finished_data', {})
@@ -156,8 +184,8 @@ async def continue_or_end_onboarding_flow(message_history, current_model, curren
         if current_model.__base__.__name__ == 'Choice':
             await choice_flow(message_history, current_model, current_data, model_meta)
         # TODO: Multiple Choice
-        elif current_model.__base__.__name__ == 'MultipleChoice':
-            await multiple_choice_flow(message_history, current_model, current_data, model_meta)
+        elif current_model.__base__.__name__ == 'MultiChoice':
+            await multi_choice_flow(message_history, current_model, current_data, model_meta)
         # if this is a Question, then we continue the onboarding loop
         else:
             # Note: this is a recursive call

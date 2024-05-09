@@ -32,9 +32,9 @@ class Choice(SQLModel):
     '''
     pass
 
-class MultipleChoice(SQLModel):
+class MultiChoice(SQLModel):
     # ALERT: In Progress
-    ''' You can use this to create a chckbox group of choices for the user to select from.
+    ''' You can use this to create a checkbox group of choices for the user to select from.
     '''
     pass
 
@@ -65,7 +65,7 @@ def load_models_from_yaml(filename):
         model_fields = {}
         for field in model_data['fields']:
             field_name = field['name']
-            if model_data['class_type'] == 'Choice':
+            if model_data['class_type'] in ['Choice', 'MultiChoice']:
                 model_fields[field_name] = (bool, Field(default=False))
             else:
                 field_type = eval(field.get('type', 'str'))
@@ -86,6 +86,6 @@ def load_models_from_yaml(filename):
 
     enabled_models = [models[model_name] for model_name in data['enabled_models']]
 
-    return models, enabled_models
+    return enabled_models
 
 

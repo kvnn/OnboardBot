@@ -14,9 +14,20 @@ models:
         type: int
       - name: number_of_bathrooms
         type: float
-
+  
   - name: PropertyStyle
     class_type: Choice
+    description: What is your desired property type?
+    fields:
+      - name: townhouse
+      - name: condo
+      - name: single_family
+      - name: multi_family
+      - name: land
+      - name: other
+
+  - name: MultiChoiceTest
+    class_type: MultiChoice
     description: What is your desired property type?
     fields:
       - name: townhouse
@@ -48,5 +59,6 @@ enabled_models:
   # - ContactInfo
   # - DesiredProperty
   - PropertyStyle
-  - OtherInfo
+  - MultiChoiceTest
+  # - OtherInfo
   # - MustHave

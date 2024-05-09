@@ -11,6 +11,9 @@ More interesting, we can use LLMs to provide a continuous interface for managing
 For now OnboardBot is a simple starter project for a [Chainlit](https://github.com/Chainlit/chainlit)-based data-collecting Chatbot.
 
 
+### Import Notes
+1. Currently , your models config MUST start with a `Question` model type. Hoping to fix this soon.
+
 ### Install
 1. `git clone git@github.com:kvnn/OnboardBot.git`
 2. `cd OnboardBot/src/server`
