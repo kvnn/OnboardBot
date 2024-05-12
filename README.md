@@ -1,14 +1,27 @@
 ## OnboardBot
-
 Demo: [Onboard.bot](https://onboard.bot)
 
-https://github.com/kvnn/OnboardBot/assets/251807/be165084-9a80-4a00-8855-23690a3d662a
+OnboardBot allows you to direct Chatbot conversations towards collecting data defined by flexible YAML files.
 
-Forms suck. LLMs are good at conversational-izing data operations. So, we can use LLMs like Mixtral or GPT-4 to get our users (and ourselves, even) into an "onboarded" state.
+For example, the following YAML will direct the Chatbot to collect Name, email and the user's desired number of bedrooms / bathrooms:
 
-More interesting, we can use LLMs to provide a continuous interface for managing our relational data. Examples coming soon.
+```
+models:
+  - name: Buyer
+    class_type: Question
+    fields:
+      - name: name
+      - name: email_address
 
-For now OnboardBot is a simple starter project for a [Chainlit](https://github.com/Chainlit/chainlit)-based data-collecting Chatbot.
+  - name: DesiredProperty
+    class_type: Question
+    fields:
+      - name: number_of_bedrooms
+        type: int
+      - name: number_of_bathrooms
+        type: float
+  
+```
 
 
 ### Import Notes
