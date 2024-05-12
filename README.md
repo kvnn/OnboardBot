@@ -3,7 +3,7 @@ Demo: [Onboard.bot](https://onboard.bot)
 
 OnboardBot allows you to direct Chatbot conversations towards collecting data defined by flexible YAML files.
 
-For example, the following YAML will direct the Chatbot to collect Name, email and the user's desired number of bedrooms / bathrooms:
+For example, the following YAML will direct the Chatbot to collect Name, email and the user's desired property type:
 
 ```
 models:
@@ -13,14 +13,16 @@ models:
       - name: name
       - name: email_address
 
-  - name: DesiredProperty
-    class_type: Question
+  - name: PropertyStyle
+    class_type: Choice
+    description: What is your desired property type?
     fields:
-      - name: number_of_bedrooms
-        type: int
-      - name: number_of_bathrooms
-        type: float
-  
+      - name: townhouse
+      - name: condo
+      - name: single_family
+      - name: multi_family
+      - name: land
+      - name: other
 ```
 
 
