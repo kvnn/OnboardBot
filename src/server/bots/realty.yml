@@ -4,8 +4,8 @@ models:
   - name: Buyer
     class_type: Question
     fields:
-      - name: first_name
-      - name: last_name
+      - name: name
+      - name: email_address
 
   - name: DesiredProperty
     class_type: Question
@@ -26,25 +26,19 @@ models:
       - name: land
       - name: other
 
-  - name: MultiChoiceTest
-    class_type: MultiChoice
-    description: What is your desired property type?
-    fields:
-      - name: townhouse
-      - name: condo
-      - name: single_family
-      - name: multi_family
-      - name: land
-      - name: other
-
-  - name: OtherInfo
-    class_type: Question
+  - name: MultiFamilyDetails
+    class_type: Choice
+    description: What are you looking for in a Multi Family property?
     conditions:
       - type: ShowForChoice
         for_choice: PropertyStyle
-        for_value: other
+        for_value: multi_family
     fields:
-      - name: description_of_dream_property
+      - name: grandparents quarters
+      - name: business headquarters
+      - name: off-grid compound
+      - name: vacation rental
+  
 
   - name: MustHave
     class_type: Question
@@ -56,9 +50,7 @@ models:
 # This is the list of models that will be enabled for the application, in the given order
 enabled_models:
   - Buyer
-  # - ContactInfo
-  # - DesiredProperty
+  - DesiredProperty
   - PropertyStyle
-  - MultiChoiceTest
-  # - OtherInfo
-  # - MustHave
+  - MultiFamilyDetails
+  - MustHave

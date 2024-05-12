@@ -169,9 +169,31 @@ async def continue_or_end_onboarding_flow(message_history, current_model, curren
         current_data = {}
         cl.user_session.set('current_model', current_model)
         cl.user_session.set('current_data', current_data)
+        
+        conditions_exist = len(current_model.conditions)
+        conditions_met = False
 
+        print(f'[onboarding_flow] finished_data={finished_data}')
+        # If current_model is conditional, then lets run the condition
+        for conditional in current_model.conditions:
+            if conditional.get('type') == 'ShowForChoice':
+                field_name = conditional.get('for_choice')
+                # Ohhhhh this is gross. Refactor holistically to make finished_models / enabled_models more cogent throughout the app lifecycle.
+                enabled_models_by_name = {model.__name__: model for model in enabled_models}
+                our_finished_data_keyname = enabled_models_by_name[field_name].__tablename__
+                print(f'enabled_models_by_name={enabled_models_by_name}')
+                print(f'our_finished_data_keyname={our_finished_data_keyname}')
+                if field_name in enabled_models_by_name:
+                    if finished_data[our_finished_data_keyname][conditional.get('for_value')]:
+                        conditions_met = True
+                else:
+                    print(f'[onboarding_flow] error: conditional field {field_name} not in curent data')
+
+        # If the conditions for showing this question / model are not met, skip it
+        if conditions_exist and not conditions_met:
+            return await continue_or_end_onboarding_flow(message_history, current_model, current_data, model_meta)
         # if its a Choice, then we ask the user to make a choice
-        if current_model.__base__.__name__ == 'Choice':
+        elif current_model.__base__.__name__ == 'Choice':
             await choice_flow(message_history, current_model, current_data, model_meta)
         # TODO: Multiple Choice
         elif current_model.__base__.__name__ == 'MultiChoice':
@@ -199,26 +221,6 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
     followup_response = fallback_followup_response
     current_model_name = current_model.__tablename__
     finished_data = cl.user_session.get('finished_data', {})
-
-    print(f'[onboarding_flow] finished_data={finished_data}')
-    # If current_model is conditional, then lets run the condition
-    for conditional in current_model.conditions:
-        if conditional.get('type') == 'ShowForChoice':
-            field_name = conditional.get('for_choice')
-            # Ohhhhh this is gross. Refactor holistically to make finished_models / enabled_models more cogent throughout the app lifecycle.
-            enabled_models_by_name = {model.__name__: model for model in enabled_models}
-            our_finished_data_keyname = enabled_models_by_name[field_name].__tablename__
-            print(f'enabled_models_by_name={enabled_models_by_name}')
-            print(f'our_finished_data_keyname={our_finished_data_keyname}')
-            if field_name in enabled_models_by_name:
-                if finished_data[our_finished_data_keyname][conditional.get('for_value')]:
-                    conditions_met = True
-            else:
-                print(f'[onboarding_flow] error: conditional field {field_name} not in curent data')
-
-    # If the conditions for showing this question / model are not met, skip it
-    if conditions_exist and not conditions_met:
-        return await continue_or_end_onboarding_flow(message_history, current_model, current_data, model_meta)
 
     # If current_model is a Question , we need to ask the LLM to fill it out based on message history
     # If its a Choice, then the user has already made a choice
@@ -258,12 +260,8 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
             onboard_session = cl.user_session.get('onboard_session', Onboarding(data=finished_data))
             onboard_session = save_db_session(onboard_session, finished_data)
             cl.user_session.set('onboard_session', onboard_session)
-            msg_content = content=current_data_content
         except Exception as e:
-            msg_content = f'There was an error saving to database, but we will carry on! The error was {e}'
-        
-        msg = cl.Message(author="OnboardBot", content=msg_content)
-        await msg.send()
+            print(f'There was an error saving to database, but we will carry on! The error was {e}')
 
         await continue_or_end_onboarding_flow(message_history, current_model, current_data, model_meta)
 
