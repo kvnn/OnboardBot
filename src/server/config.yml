@@ -1,4 +1,4 @@
-models_config_path: 'bots/probate.yml'
+models_config_path: 'bots/realty.yml'
 
 llm_model_name: 'gpt-4'  # Best for production. Fast and accurate.
 
