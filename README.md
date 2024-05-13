@@ -34,7 +34,7 @@ models:
 2. `cd OnboardBot/src/server`
 3. (optional) `python3 -m venv .venv && source .venv/bin/activate`)
 4. `pip install -r requirements.txt`
-5. Create an `.env` file in the server directory:
+5. Create an `.env` file in the server directory. It will require an `OPENROUTER_API_KEY` OR an `OPENAI_API_KEY` .
 ```bash
 CHAINLIT_AUTH_SECRET="YOUR SECRET KEY"
 OPENROUTER_API_KEY="YOUR OPENROUTER_API_KEY"

@@ -14,8 +14,7 @@ from pydantic import ValidationError
 from prompts import (
     get_onboarding_prompt,
     finished_message,
-    fallback_followup_response,
-    welcome_message
+    fallback_followup_response
 )
 from models import load_models_from_yaml, hyrdate_db, save_db_session, Onboarding
 
@@ -30,26 +29,11 @@ config_path = os.path.join(current_dir, 'config.yml')
 with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
-# open_router_model_name = 'gpt-3.5-turbo'    # not good for OnboardBot
-# open_router_model_name = 'mistralai/mistral-medium' # not good for Onboardbot?
+llm_model_name = config['llm_model_name']
 
-# very good for OnboardBot. strictest conformity to implicit field requirements.
-# for example, will make the user correct "octopus" if the field name is "favorite_marine_mammal", b/c octopus is not a mammal.
-
-open_router_model_name = 'anthropic/claude-3-opus' # great for OnboardBot. Slower than gpt-4
-
-open_router_model_name = 'anthropic/claude-3-sonnet' # good for OnboarBot. Quick. Not 100% accurate
-
-open_router_model_name = 'gpt-4' # best for OnboardBot.
-
-# good for Onboardbot! great for playing with it. good for production IF strict imlplicit field adherance
-# is not required. For example, if "octopus" is a good enough answer for "favorite_marine_mammal".
-# open_router_model_name = 'anthropic/claude-3-haiku'
-
-# Load the models from the yaml file
+# Load the data models from the yaml file
 models_config_path = os.path.join(current_dir, config['models_config_path'])
-print(f'models_config_path={models_config_path}')
-enabled_models = load_models_from_yaml(models_config_path)
+welcome_message, enabled_models = load_models_from_yaml(models_config_path)
 
 # Initialize the database
 hyrdate_db()
@@ -184,7 +168,10 @@ async def continue_or_end_onboarding_flow(message_history, current_model, curren
                 print(f'enabled_models_by_name={enabled_models_by_name}')
                 print(f'our_finished_data_keyname={our_finished_data_keyname}')
                 if field_name in enabled_models_by_name:
-                    if finished_data[our_finished_data_keyname][conditional.get('for_value')]:
+                    # the keyname will not always exist if it is itself a conditional model
+                    if (    our_finished_data_keyname in finished_data and
+                            finished_data[our_finished_data_keyname][conditional.get('for_value')]
+                        ):
                         conditions_met = True
                 else:
                     print(f'[onboarding_flow] error: conditional field {field_name} not in curent data')
@@ -234,7 +221,7 @@ async def onboarding_flow(message_history, current_model, current_data, model_me
         
         content = await ask_llm_simple_json(
             query=prompt,
-            model=open_router_model_name
+            model=llm_model_name
         )
 
         message_history.append({

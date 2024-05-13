@@ -22,10 +22,15 @@ settings = {
 }
 
 
-llm_chat_client_async = AsyncOpenAI(    
-  base_url="https://openrouter.ai/api/v1",
-  api_key=os.environ['OPENROUTER_API_KEY']
-)
+if os.environ.get('OPENROUTER_API_KEY'):
+    llm_chat_client_async = AsyncOpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=os.environ['OPENROUTER_API_KEY']
+    )
+else:
+    llm_chat_client_async = AsyncOpenAI(
+        api_key=os.environ['OPENAI_API_KEY']
+    )
 
 
 def format_llm_content(content):

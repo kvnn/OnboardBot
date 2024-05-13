@@ -59,6 +59,7 @@ def load_models_from_yaml(filename):
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
 
+    welcome_message = data.get('welcome_message', 'Welcome to the onboarding bot! Let\'s get started!')
     models = {}
     for model_data in data['models']:
         model_name = model_data['name']
@@ -86,6 +87,6 @@ def load_models_from_yaml(filename):
 
     enabled_models = [models[model_name] for model_name in data['enabled_models']]
 
-    return enabled_models
+    return welcome_message, enabled_models
 
 

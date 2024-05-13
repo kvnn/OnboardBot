@@ -1,8 +1,3 @@
-welcome_message = f'''Before we get started searching for a home, I'd love to collect some basic information on the type of property you're looking for.
-
-Lets begin!
-'''
-
 finished_message = 'We are finished! Thanks for your help! A team member will reach out to you soon.'
 fallback_followup_response = "Oh no! I'm not sure what to ask. Maybe you know what I need? Or is there something you need?"
 
