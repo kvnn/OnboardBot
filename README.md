@@ -1,7 +1,8 @@
 ## OnboardBot
-Demo: [Onboard.bot](https://onboard.bot)
 
 OnboardBot allows you to direct Chatbot conversations towards collecting data defined by flexible YAML files.
+
+https://github.com/kvnn/OnboardBot/assets/251807/be165084-9a80-4a00-8855-23690a3d662a
 
 For example, the following YAML will direct the Chatbot to collect Name, email and the user's desired property type:
 
